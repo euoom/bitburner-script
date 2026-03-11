@@ -1,0 +1,11 @@
+{
+  "name": "bitburner-scripts",
+  "version": "1.0.0",
+  "description": "Bitburner Game Assistant Scripts",
+  "main": "pull.js",
+  "scripts": {
+    "update": "node manifest_updater.js"
+  },
+  "author": "euoom",
+  "license": "MIT"
+}

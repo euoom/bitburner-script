@@ -1,14 +1,10 @@
 /** @param {NS} ns */
 export async function main(ns) {
-    // 해킹할 대상 서버 (초반 가장 만만한 서버)
     const target = ns.args[0] || "foodnstuff";
-
-    // 기준 설정: 최대 자금의 75% 이상 유지, 보안 레벨은 최소치의 +5 이하 유지
     const moneyThresh = ns.getServerMaxMoney(target) * 0.75;
     const securityThresh = ns.getServerMinSecurityLevel(target) + 5;
 
-    ns.tprint(`🚀 Starting basic hack on ${target}...`);
-
+    // 무한 루프 시작
     while (true) {
         if (ns.getServerSecurityLevel(target) > securityThresh) {
             // 보안 레벨이 높으면 낮춥니다.

@@ -1,6 +1,7 @@
 {
     "files": [
-        "basic_hack.js",
-        "template.js"
+        "scripts/analyze/network_scan.js",
+        "scripts/hack/engine.js",
+        "scripts/setup/infiltrate.js"
     ]
 }

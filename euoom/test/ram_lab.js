@@ -1,5 +1,6 @@
 /** @param {NS} ns */
 export async function main(ns) {
+    ns.ramOverride(1.6);
     const tests = [
         { name: "Hack Pct", path: "/euoom/test/functions/dynamic_hack.js", staticRam: 1.0 },
         { name: "Network Scan", path: "/euoom/test/functions/dynamic_scan.js", staticRam: 0.2 },
@@ -11,15 +12,15 @@ export async function main(ns) {
     ns.tprint("|-----------------|------------|-----------------|-------------|");
 
     for (const test of tests) {
-        // 실전 런타임 테스트 (ramOverride 1.6 강제 주입)
-        const pid = ns.exec(test.path, "home", { threads: 1, ramOverride: 1.6 });
+        // ramOverride 주입 없이, 스크립트 내부의 선언에 따라 실행
+        const pid = ns["exec"](test.path, "home", 1);
         
         let resultTxt = "";
         let statusTxt = "";
 
         if (pid === 0) {
             resultTxt = "❌ REJECT";
-            statusTxt = "Blocked";
+            statusTxt = "Engine Blocked";
         } else {
             await ns.sleep(500);
             const isAlive = ns.isRunning(pid);

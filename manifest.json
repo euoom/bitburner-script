@@ -1,4 +1,5 @@
 {
+    "version": "1.0.1",
     "files": [
         "euoom/analyze/full_scan.js",
         "euoom/analyze/growTime.js",

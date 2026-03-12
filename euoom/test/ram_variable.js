@@ -1,3 +1,5 @@
+/** @param {NS} ns */
+export async function main(ns) {
     // 레벨 3: 허위 객체 패턴 매칭 테스트
     // ns와는 아무 상관 없는 일반 객체입니다.
     const fakeObject = {

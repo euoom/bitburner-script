@@ -1,6 +1,28 @@
 /** @param {NS} ns */
 export async function main(ns) {
     const tests = [
+        // --- [Level 0: Utility & System] ---
+        { name: "Alert", path: "/euoom/test/functions/dynamic_alert.js", staticRam: 0.0 },
+        { name: "Alter Reality", path: "/euoom/test/functions/dynamic_alterReality.js", staticRam: 0.0 },
+        { name: "Asleep", path: "/euoom/test/functions/dynamic_asleep.js", staticRam: 0.0 },
+        { name: "atExit", path: "/euoom/test/functions/dynamic_atExit.js", staticRam: 0.0 },
+        { name: "Bypass", path: "/euoom/test/functions/dynamic_bypass.js", staticRam: 0.0 },
+        { name: "Clear", path: "/euoom/test/functions/dynamic_clear.js", staticRam: 0.0 },
+        { name: "Clear Log", path: "/euoom/test/functions/dynamic_clearLog.js", staticRam: 0.0 },
+        { name: "Clear Port", path: "/euoom/test/functions/dynamic_clearPort.js", staticRam: 0.0 },
+        { name: "Close Tail", path: "/euoom/test/functions/dynamic_closeTail.js", staticRam: 0.0 },
+        { name: "Disable Log", path: "/euoom/test/functions/dynamic_disableLog.js", staticRam: 0.0 },
+        { name: "Enable Log", path: "/euoom/test/functions/dynamic_enableLog.js", staticRam: 0.0 },
+        { name: "Exit", path: "/euoom/test/functions/dynamic_exit.js", staticRam: 0.0 },
+        { name: "Exploit", path: "/euoom/test/functions/dynamic_exploit.js", staticRam: 0.0 },
+        { name: "Flags", path: "/euoom/test/functions/dynamic_flags.js", staticRam: 0.0 },
+        { name: "Format Number", path: "/euoom/test/functions/dynamic_formatNumber.js", staticRam: 0.0 },
+        { name: "Format Percent", path: "/euoom/test/functions/dynamic_formatPercent.js", staticRam: 0.0 },
+        { name: "Format Ram", path: "/euoom/test/functions/dynamic_formatRam.js", staticRam: 0.0 },
+        { name: "Func Ram Cost", path: "/euoom/test/functions/dynamic_getFunctionRamCost.js", staticRam: 0.0 },
+        { name: "UI Namespace", path: "/euoom/test/functions/dynamic_ui.js", staticRam: 0.0 },
+        { name: "Stock Namespace", path: "/euoom/test/functions/dynamic_stock_ns.js", staticRam: 0.0 },
+
         // --- [Level 1: Daily Hacking (0.1GB ~ 1.0GB)] ---
         { name: "Hack Analyze", path: "/euoom/test/functions/dynamic_hack.js", staticRam: 1.0 },
         { name: "Hack Chance", path: "/euoom/test/functions/dynamic_hackAnalyzeChance.js", staticRam: 0.1 },

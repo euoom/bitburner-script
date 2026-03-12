@@ -1,104 +1,56 @@
 /** @param {NS} ns */
 export async function main(ns) {
-    ns.tprint("=== 🛠️ CHECK.JS: Unified Bypass Lab ===");
+    ns.tprint("=== 🛠️ CHECK.JS: Internal Engine Probe ===");
 
     try {
-        // 1. 25GB DOM 우회 (문자열 조합 방식)
+        // 1. 글로벌 객체 확보 (이미 25GB 우회를 통해 통로가 열림)
         const g = ns.hack.constructor("return this")();
+        
+        // 2. 게임 내부 전역 변수 전수 조사
+        ns.tprint("- Searching for naked global variables...");
+        const interestingKeys = [
+            "Player", "Servers", "AllServers", "engine", "netscript", 
+            "appSaveFns", "terminal", "router", "BitNodeMultipliers"
+        ];
+        
+        for (const key of interestingKeys) {
+            if (g[key] !== undefined) {
+                ns.tprint(`🎯 [FOUND] global.${key} (${typeof g[key]})`);
+                // 객체라면 내부 구조 살짝 보기
+                if (typeof g[key] === "object" && g[key] !== null) {
+                    const subKeys = Object.keys(g[key]).slice(0, 5);
+                    ns.tprint(`   ↳ Keys: ${subKeys.join(", ")}...`);
+                }
+            }
+        }
+
+        // 3. Document를 통한 리액트 상태 저장소(Store) 탈취
         const doc = g["doc" + "ument"];
-
-        if (!doc) {
-            ns.tprint("❌ Critical: Document not accessible.");
-            return;
-        }
-        ns.tprint("✅ Document object stolen with 0GB cost!");
-
-        // 2. UI 변조 테스트 (Root Glow)
-        const root = doc.getElementById('root');
-        if (root) {
-            root.style.boxShadow = "inset 0 0 50px #00ff00";
-            ns.tprint("✅ Visual hijacking applied (Root Glow).");
-
-            // 3. 리액트 내부 객체 탐색
-            const reactKey = Object.keys(root).find(key => key.startsWith('__reactContainer') || key.startsWith('__reactProps'));
-            if (reactKey) {
-                ns.tprint(`✅ Found React Key: ${reactKey}`);
-                const internal = root[reactKey];
+        if (doc) {
+            const root = doc.getElementById('root');
+            const fiberKey = Object.keys(root).find(k => k.startsWith("__reactContainer"));
+            if (fiberKey) {
+                const internal = root[fiberKey];
+                ns.tprint("✅ React Container caught. Digging for Store...");
                 
-                ns.tprint("- Searching deeper (50 layers) and across all DOM elements...");
+                // 리액트 트리에서 'state'나 'props' 명칭을 가진 데이터 뭉치 찾기
+                function deepScout(obj, depth = 0) {
+                    if (!obj || depth > 20) return;
+                    
+                    if (obj.memoizedProps && obj.memoizedProps.value && obj.memoizedProps.value.player) {
+                        ns.tprint("🔥 JACKPOT: Found Player Object in React Context!");
+                        return obj.memoizedProps.value;
+                    }
+                    
+                    if (obj.child) return deepScout(obj.child, depth + 1);
+                }
                 
-                let foundEngine = null;
-                const seen = new Set();
-
-                function findInFiber(obj, depth = 0) {
-                    if (!obj || depth > 50 || foundEngine || seen.has(obj)) return;
-                    seen.add(obj);
-                    
-                    // 핵심 탐색 대상: ns, player, engine, router
-                    const targets = ["ns", "player", "engine"];
-                    
-                    // 1. memoizedProps 탐색
-                    if (obj.memoizedProps) {
-                        for (const target of targets) {
-                            if (obj.memoizedProps[target]) {
-                                foundEngine = obj.memoizedProps[target];
-                                if (target === "ns") return; // ns를 찾으면 즉시 중단
-                            }
-                        }
-                    }
-
-                    // 2. stateNode 탐색
-                    if (obj.stateNode && !obj.stateNode.nodeType) { // DOM 노드가 아닌 경우만
-                        for (const target of targets) {
-                            if (obj.stateNode.props && obj.stateNode.props[target]) {
-                                foundEngine = obj.stateNode.props[target];
-                                if (target === "ns") return;
-                            }
-                        }
-                    }
-
-                    if (obj.child) findInFiber(obj.child, depth + 1);
-                    if (obj.sibling) findInFiber(obj.sibling, depth + 1);
-                }
-
-                // 1) Root Container부터 탐색
-                findInFiber(internal);
-
-                // 2) 만약 못 찾았다면 모든 DOM 엘리먼트를 돌며 Fiber 노드 탐색
-                if (!foundEngine) {
-                    const allElems = doc.getElementsByTagName("*");
-                    for (const el of allElems) {
-                        const fiberKey = Object.keys(el).find(k => k.startsWith("__reactFiber"));
-                        if (fiberKey) {
-                            findInFiber(el[fiberKey]);
-                            if (foundEngine) break;
-                        }
-                    }
-                }
-
-                if (foundEngine) {
-                    ns.tprint("🎯 JACKPOT: Naked Engine acquired!");
-                    try {
-                        // 램 체크 프록시를 거치지 않는 직접 호출 테스트
-                        const server = foundEngine.getServer("home");
-                        ns.tprint(`✅ Success! Home Max RAM: ${server.maxRam}GB`);
-                    } catch (e) {
-                        ns.tprint("⚠️ Engine found but call failed: " + e.message);
-                    }
-                } else {
-                    ns.tprint("⚠️ Could not find Naked Engine in the first 10 layers.");
+                const store = deepScout(internal);
+                if (store) {
+                    ns.tprint("✅ Internal Store acquired.");
                 }
             }
         }
-
-        // 4. 터미널 하이라이트
-        const terminals = doc.querySelectorAll("p, span, li");
-        terminals.forEach(el => {
-            if (el.innerText && el.innerText.includes("CHECK.JS")) {
-                el.style.color = "#00ff00";
-                el.style.fontWeight = "bold";
-            }
-        });
 
     } catch (e) {
         ns.tprint("❌ Error: " + e.message);

@@ -1,4 +1,7 @@
+import { getHN } from "/euoom/lib/hacknet.js";
+
 /** @param {NS} ns */
 export async function main(ns) {
-    ns["hacknet"]["numNodes"]();
+    const hn = getHN(ns);
+    hn["numNodes"]();
 }

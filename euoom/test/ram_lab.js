@@ -13,7 +13,7 @@ export async function main(ns) {
 
     for (const test of tests) {
         // ramOverride 주입 없이, 스크립트 내부의 선언에 따라 실행
-        const pid = ns["exec"](test.path, "home", 1);
+        const pid = ns.exec(test.path, "home", 1);
         
         let resultTxt = "";
         let statusTxt = "";

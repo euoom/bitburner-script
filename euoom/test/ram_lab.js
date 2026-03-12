@@ -1,13 +1,23 @@
 /** @param {NS} ns */
 export async function main(ns) {
     const tests = [
-        // --- [Level 1: Daily Hacking Suite (0.1GB ~ 1.0GB)] ---
+        // --- [Level 1: Daily Hacking (0.1GB ~ 1.0GB)] ---
         { name: "Hack Analyze", path: "/euoom/test/functions/dynamic_hack.js", staticRam: 1.0 },
-        { name: "Hack Suite", path: "/euoom/test/functions/dynamic_hackSuite.js", staticRam: 0.3 }, // Chance, Security, Threads
+        { name: "Hack Chance", path: "/euoom/test/functions/dynamic_hackAnalyzeChance.js", staticRam: 0.1 },
+        { name: "Hack Sec", path: "/euoom/test/functions/dynamic_hackAnalyzeSecurity.js", staticRam: 0.1 },
+        { name: "Hack Threads", path: "/euoom/test/functions/dynamic_hackAnalyzeThreads.js", staticRam: 0.1 },
         { name: "Growth Ana", path: "/euoom/test/functions/dynamic_growthAnalyze.js", staticRam: 1.0 },
         { name: "Weaken Ana", path: "/euoom/test/functions/dynamic_weakenAnalyze.js", staticRam: 1.0 },
-        { name: "Server Stats", path: "/euoom/test/functions/dynamic_serverStats.js", staticRam: 0.4 }, // Sec, Money, MaxRam, UsedRam
-        { name: "Time Stats", path: "/euoom/test/functions/dynamic_timeStats.js", staticRam: 0.15 }, // H, G, W Time
+        
+        // --- Stats & Info ---
+        { name: "Get Sec Lvl", path: "/euoom/test/functions/dynamic_getServerSecurityLevel.js", staticRam: 0.1 },
+        { name: "Get Money Avail", path: "/euoom/test/functions/dynamic_getServerMoneyAvailable.js", staticRam: 0.1 },
+        { name: "Get Max Ram", path: "/euoom/test/functions/dynamic_getServerMaxRam.js", staticRam: 0.1 },
+        { name: "Get Used Ram", path: "/euoom/test/functions/dynamic_getServerUsedRam.js", staticRam: 0.1 },
+        { name: "Get Hack Time", path: "/euoom/test/functions/dynamic_getHackTime.js", staticRam: 0.05 },
+        { name: "Get Grow Time", path: "/euoom/test/functions/dynamic_getGrowTime.js", staticRam: 0.05 },
+        { name: "Get Weaken Time", path: "/euoom/test/functions/dynamic_getWeakenTime.js", staticRam: 0.05 },
+        
         { name: "Scan", path: "/euoom/test/functions/dynamic_scan.js", staticRam: 0.2 },
         { name: "File Exists", path: "/euoom/test/functions/dynamic_fileExists.js", staticRam: 0.1 },
 

@@ -1,12 +1,25 @@
 /** @param {NS} ns */
 export async function main(ns) {
     const tests = [
-        { name: "Hack Pct", path: "/euoom/test/functions/dynamic_hack.js", staticRam: 1.0 },
+        // --- [Level 1: Basic & Analysis (0.1GB ~ 1.0GB)] ---
+        { name: "Scan", path: "/euoom/test/functions/dynamic_scan.js", staticRam: 0.2 },
+        { name: "Hack Analyze", path: "/euoom/test/functions/dynamic_hack.js", staticRam: 1.0 },
         { name: "Growth Ana", path: "/euoom/test/functions/dynamic_growthAnalyze.js", staticRam: 1.0 },
         { name: "Weaken Ana", path: "/euoom/test/functions/dynamic_weakenAnalyze.js", staticRam: 1.0 },
+        { name: "File Exists", path: "/euoom/test/functions/dynamic_fileExists.js", staticRam: 0.1 },
+
+        // --- [Level 2: Heavy Server & Player (2.0GB ~ 4.0GB)] ---
         { name: "Get Server", path: "/euoom/test/functions/dynamic_getServer.js", staticRam: 2.0 },
-        { name: "Network Scan", path: "/euoom/test/functions/dynamic_scan.js", staticRam: 0.2 },
-        { name: "Hacknet API", path: "/euoom/test/functions/dynamic_hacknet.js", staticRam: 4.0 }
+        { name: "Get Player", path: "/euoom/test/functions/dynamic_getPlayer.js", staticRam: 0.5 },
+        { name: "Hacknet API", path: "/euoom/test/functions/dynamic_hacknet.js", staticRam: 4.0 },
+        { name: "Nuke", path: "/euoom/test/functions/dynamic_nuke.js", staticRam: 0.05 },
+        { name: "BruteSSH", path: "/euoom/test/functions/dynamic_brutessh.js", staticRam: 0.05 },
+
+        // --- [Level 3: Hyper Cost & Subs (4.0GB ~ 5.0GB+)] ---
+        { name: "Singularity", path: "/euoom/test/functions/dynamic_singularity.js", staticRam: 4.0 },
+        { name: "Formulas", path: "/euoom/test/functions/dynamic_formulas.js", staticRam: 5.0 },
+        { name: "Corporation", path: "/euoom/test/functions/dynamic_corporation.js", staticRam: Infinity },
+        { name: "Stock Market", path: "/euoom/test/functions/dynamic_stock.js", staticRam: 2.0 }
     ];
 
     ns.tprint("=== RAM LAB: Runtime Stress Test (Force 1.6GB) ===");

@@ -1,5 +1,5 @@
 {
-    "version": "1.1.0",
+    "version": "1.1.1",
     "files": [
         "euoom/analyze/full_scan.js",
         "euoom/analyze/crawler.js",
@@ -25,6 +25,14 @@
         "euoom/test/functions/dynamic_growthAnalyze.js",
         "euoom/test/functions/dynamic_weakenAnalyze.js",
         "euoom/test/functions/dynamic_getServer.js",
+        "euoom/test/functions/dynamic_singularity.js",
+        "euoom/test/functions/dynamic_formulas.js",
+        "euoom/test/functions/dynamic_nuke.js",
+        "euoom/test/functions/dynamic_brutessh.js",
+        "euoom/test/functions/dynamic_fileExists.js",
+        "euoom/test/functions/dynamic_corporation.js",
+        "euoom/test/functions/dynamic_stock.js",
+        "euoom/test/functions/dynamic_getPlayer.js",
         "euoom/util/backup.js",
         "euoom/util/run_hackAnalyze.js",
         "euoom/util/run_growthAnalyze.js",

@@ -11,15 +11,17 @@ export async function main(ns) {
     const baseUrl = `https://raw.githubusercontent.com/${user}/${repo}/${branch}/`;
     const manifestUrl = `${baseUrl}manifest.json`;
 
-    ns.tprint(`🚀 Starting Bitburner Pull System...`);
-    ns.tprint(`Source: ${user}/${repo} (${branch})`);
+    const host = ns.getHostname();
+
+    ns.tprint(`[${host}] 🚀 Starting Bitburner Pull System...`);
+    ns.tprint(`[${host}] Source: ${user}/${repo} (${branch})`);
 
     try {
-        ns.tprint(`Attempting to download manifest.json...`);
+        ns.tprint(`[${host}] Attempting to download manifest.json...`);
         const manifestResult = await ns.wget(manifestUrl, "temp_manifest.json");
 
         if (!manifestResult) {
-            ns.tprint(`❌ Failed to download manifest.json. Ensure the file exists in the repo.`);
+            ns.tprint(`[${host}] ❌ Failed to download manifest.json. Ensure the file exists in the repo.`);
             return;
         }
 
@@ -28,11 +30,11 @@ export async function main(ns) {
         const total = files.length;
 
         if (total === 0) {
-            ns.tprint(`⚠️ No files found in manifest.json`);
+            ns.tprint(`[${host}] ⚠️ No files found in manifest.json`);
             return;
         }
 
-        ns.tprint(`Found ${total} files to download.`);
+        ns.tprint(`[${host}] Found ${total} files to download.`);
 
         for (let i = 0; i < total; i++) {
             const file = files[i];
@@ -42,18 +44,18 @@ export async function main(ns) {
             const bar = "█".repeat(progress) + "-".repeat(barWidth - progress);
             
             // tqdm 스타일의 진행률 표시
-            ns.tprint(`[${bar}] ${percent}% | ${i + 1}/${total} | Syncing: ${file}`);
+            ns.tprint(`[${host}] [${bar}] ${percent}% | ${i + 1}/${total} | Syncing: ${file}`);
             
             const success = await ns.wget(`${baseUrl}${file}`, file);
             if (!success) {
-                ns.tprint(`   ❌ Failed to download ${file}.`);
+                ns.tprint(`[${host}]   ❌ Failed to download ${file}.`);
             }
         }
 
         ns.rm("temp_manifest.json");
-        ns.tprint(`✨ Pull complete! All scripts synchronized.`);
+        ns.tprint(`[${host}] ✨ Pull complete! All scripts synchronized.`);
 
     } catch (error) {
-        ns.tprint(`❌ Error during pull: ${error.message}`);
+        ns.tprint(`[${host}] ❌ Error during pull: ${error.message}`);
     }
 }

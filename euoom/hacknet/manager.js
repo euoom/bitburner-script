@@ -16,7 +16,7 @@ export async function main(ns) {
             totalInvested = savedData.totalInvested || 0;
             history = savedData.history || [];
         } catch (e) {
-            // 파일 읽기 실패 시 초기화
+            // 초기화
         }
     }
 
@@ -31,15 +31,21 @@ export async function main(ns) {
             };
             history.push(record);
             
-            // 효율성 지표 계산 (차이)
-            const diff = nextPayback - avgPayback;
-            const diffText = diff > 0 
-                ? `📈 Efficiency Drop: +${Math.floor(diff/60)}m` 
-                : `📉 Efficiency Gain: ${Math.floor(diff/60)}m`;
+            // 효율성 텍스트 구성
+            let avgText = "N/A";
+            let diffText = "🆕 First Investment";
+            
+            if (avgPayback > 0 && avgPayback < 4000000000) {
+                avgText = `${Math.floor(avgPayback / 60)}m`;
+                const diff = nextPayback - avgPayback;
+                diffText = diff > 0 
+                    ? `📈 Efficiency Drop: +${Math.floor(diff/60)}m` 
+                    : `📉 Efficiency Gain: ${Math.abs(Math.floor(diff/60))}m`;
+            }
 
-            // 메인 터미널 출력 최적화
+            // 터미널 출력
             ns.tprint(`[${host}] 💸 Purchased: ${newRecord.target} ($${ns.formatNumber(newRecord.cost, 2)})`);
-            ns.tprint(`[${host}] 📊 Avg Payback: ${Math.floor(avgPayback/60)}m -> Next Item: ${Math.floor(nextPayback/60)}m (${diffText})`);
+            ns.tprint(`[${host}] 📊 Avg Payback: ${avgText} -> Item: ${Math.floor(nextPayback / 60)}m (${diffText})`);
             
             if (history.length > 100) history.shift();
         }
@@ -66,7 +72,6 @@ export async function main(ns) {
         let minPaybackTime = Infinity;
         const numNodes = ns.hacknet.numNodes();
 
-        // 1. 새로운 노드 구입 검토
         const newNodeCost = ns.hacknet.getPurchaseNodeCost();
         const newNodeProd = getProdIncrease(0, 0, 0, 1, 1, 1);
         const newNodePayback = newNodeCost / newNodeProd;
@@ -76,10 +81,8 @@ export async function main(ns) {
             bestOption = { type: 'node', cost: newNodeCost, prod: newNodeProd, text: "New Node" };
         }
 
-        // 2. 기존 노드 업그레이드 검토
         for (let i = 0; i < numNodes; i++) {
             const stats = ns.hacknet.getNodeStats(i);
-
             const lvlCost = ns.hacknet.getLevelUpgradeCost(i, 1);
             const lvlProd = getProdIncrease(stats.level, stats.ram, stats.cores, stats.level + 1, stats.ram, stats.cores);
             if (lvlCost / lvlProd < minPaybackTime) {
@@ -102,9 +105,16 @@ export async function main(ns) {
             }
         }
 
-        // 3. 최적의 옵션 실행
         if (bestOption && (minPaybackTime < MAX_PAYBACK_TIME_SECONDS || numNodes === 0)) {
             if (ns.getServerMoneyAvailable("home") >= bestOption.cost) {
+                // 구매 전 현재 평균 효율 계산
+                let currentTotalProd = 0;
+                for (let j = 0; j < ns.hacknet.numNodes(); j++) {
+                    currentTotalProd += ns.hacknet.getNodeStats(j).production;
+                }
+                const avgPayback = (currentTotalProd > 0 && totalInvested > 0) ? (totalInvested / currentTotalProd) : 4294967295;
+                const nextPayback = bestOption.cost / bestOption.prod;
+
                 let success = false;
                 if (bestOption.type === 'node') success = ns.hacknet.purchaseNode() !== -1;
                 if (bestOption.type === 'level') success = ns.hacknet.upgradeLevel(bestOption.index, 1);
@@ -112,15 +122,6 @@ export async function main(ns) {
                 if (bestOption.type === 'core') success = ns.hacknet.upgradeCore(bestOption.index, 1);
                 
                 if (success) {
-                    // 현재 생산량 합산
-                    let currentTotalProd = 0;
-                    for (let j = 0; j < ns.hacknet.numNodes(); j++) {
-                        currentTotalProd += ns.hacknet.getNodeStats(j).production;
-                    }
-                    
-                    const avgPayback = (currentTotalProd > 0 && totalInvested > 0) ? (totalInvested / currentTotalProd) : 4294967295;
-                    const nextPayback = bestOption.cost / bestOption.prod;
-
                     totalInvested += bestOption.cost;
                     saveStats({
                         type: bestOption.type,

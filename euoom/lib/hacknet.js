@@ -19,9 +19,19 @@ function getProdIncrease(ns, level, ram, cores, newLevel, newRam, newCores) {
  */
 export function tickHacknet(ns, state, config = {}) {
     const hn = ns["hacknet"];
-    const MAX_PAYBACK = config.maxPayback || 3600 * 2;
-    const logFile = config.logFile || "/euoom/hacknet/hacknet.txt";
     const quiet = config.quiet || false;
+    const logFile = config.logFile || "/euoom/hacknet/hacknet.txt";
+
+    // [Step 1] 현재 포트폴리오 효율 분석
+    let currentTotalProd = 0;
+    for (let j = 0; j < hn["numNodes"](); j++) currentTotalProd += hn["getNodeStats"](j).production;
+    
+    // 현재 평균 회수 시간 (초)
+    const avgPayback = (currentTotalProd > 0 && state.totalInvested > 0) ? (state.totalInvested / currentTotalProd) : 0;
+    
+    // [Step 2] 동적 임계치 결정 (사용자 전략: 평균의 2배)
+    // - 데이터가 없는 초반에는 config.maxPayback(기본 2시간)을 사용
+    const DYNAMIC_MAX_PAYBACK = avgPayback > 0 ? (avgPayback * 2) : (config.maxPayback || 3600 * 2);
 
     let bestOption = null;
     let minPaybackTime = Infinity;
@@ -65,7 +75,7 @@ export function tickHacknet(ns, state, config = {}) {
     }
 
     // 3. 실행 판단
-    if (bestOption && (minPaybackTime < MAX_PAYBACK || numNodes === 0)) {
+    if (bestOption && (minPaybackTime < DYNAMIC_MAX_PAYBACK || numNodes === 0)) {
         const myMoney = ns["getServerMoneyAvailable"]("home");
         if (myMoney >= bestOption.cost) {
             let success = false;
@@ -75,11 +85,7 @@ export function tickHacknet(ns, state, config = {}) {
             if (bestOption.type === 'core') success = hn["upgradeCore"](bestOption.index, 1);
             
             if (success) {
-                // [Efficiency Analysis]
-                let currentTotalProd = 0;
-                for (let j = 0; j < hn["numNodes"](); j++) currentTotalProd += hn["getNodeStats"](j).production;
-                
-                const avgPayback = (currentTotalProd > 0 && state.totalInvested > 0) ? (state.totalInvested / currentTotalProd) : 0;
+                // 상단에서 계산한 avgPayback 재사용
                 const nextPayback = bestOption.cost / bestOption.prod;
                 
                 let efficiencyDesc = "Initial";

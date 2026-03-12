@@ -11,6 +11,7 @@
         "euoom/setup/nuking.js",
         "euoom/test/ram_fat.js",
         "euoom/test/ram_slim.js",
+        "euoom/test/ram_variable.js",
         "euoom/util/backup.js",
         "euoom/util/mv_folder.js",
         "euoom/util/scp.js"

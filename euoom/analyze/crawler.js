@@ -10,7 +10,7 @@ export async function main(ns) {
         if (visited.has(current)) continue;
         visited.add(current);
 
-        const neighbors = ns["scan"](current);
+        const neighbors = ns.scan(current);
         for (const neighbor of neighbors) {
             if (!visited.has(neighbor)) queue.push(neighbor);
         }
@@ -19,16 +19,16 @@ export async function main(ns) {
 
         rawDB[current] = {
             hostname: current,
-            maxMoney: ns["getServerMaxMoney"](current),
-            requiredHacking: ns["getServerRequiredHackingLevel"](current),
-            maxRam: ns["getServerMaxRam"](current),
-            growth: ns["getServerGrowth"](current),
-            minSecurity: ns["getServerMinSecurityLevel"](current),
-            moneyAvailable: ns["getServerMoneyAvailable"](current)
+            maxMoney: ns.getServerMaxMoney(current),
+            requiredHacking: ns.getServerRequiredHackingLevel(current),
+            maxRam: ns.getServerMaxRam(current),
+            growth: ns.getServerGrowth(current),
+            minSecurity: ns.getServerMinSecurityLevel(current),
+            moneyAvailable: ns.getServerMoneyAvailable(current)
         };
     }
 
     const dbPath = "/euoom/analyze/db.json";
-    ns["write"](dbPath, JSON.stringify(rawDB, null, 4), "w");
-    ns["tprint"]("[Crawler] Basic network structure saved to db.json");
+    ns.write(dbPath, JSON.stringify(rawDB, null, 4), "w");
+    ns.tprint("[Crawler] Basic network structure saved to db.json");
 }

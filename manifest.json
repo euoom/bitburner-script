@@ -2,6 +2,7 @@
     "files": [
         "scripts/analyze/network_scan.js",
         "scripts/hack/engine.js",
+        "scripts/hacknet/manager.js",
         "scripts/setup/infiltrate.js"
     ]
 }

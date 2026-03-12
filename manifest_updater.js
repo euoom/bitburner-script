@@ -31,6 +31,12 @@ function generateManifest() {
 
     try {
         const scripts = scanDirectory(targetDir);
+        
+        // 루트의 pull.js 도 존재한다면 목록에 추가
+        if (fs.existsSync(path.join(rootDir, 'pull.js'))) {
+            scripts.unshift('pull.js');
+        }
+
         const manifest = {
             files: scripts
         };

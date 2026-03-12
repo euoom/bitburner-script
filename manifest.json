@@ -1,5 +1,6 @@
 {
     "files": [
+        "pull.js",
         "euoom/analyze/crawler.js",
         "euoom/analyze/enricher.js",
         "euoom/analyze/full_scan.js",
@@ -17,7 +18,7 @@
         "euoom/setup/infiltrate.js",
         "euoom/setup/nuking.js",
         "euoom/test/check.js",
-        "euoom/test/dom_dashboard.js",
+        "euoom/test/doc_dashboard.js",
         "euoom/test/dynamic_tester.js",
         "euoom/test/ls_ns.js",
         "euoom/test/ram_fat.js",

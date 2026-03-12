@@ -1,6 +1,6 @@
 /** @param {NS} ns */
 export async function main(ns) {
-    ns.ramOverride(1.6);
+    ns.ramOverride(2.6);
     const tests = [
         { name: "Hack Pct", path: "/euoom/test/functions/dynamic_hack.js", staticRam: 1.0 },
         { name: "Network Scan", path: "/euoom/test/functions/dynamic_scan.js", staticRam: 0.2 },

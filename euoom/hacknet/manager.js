@@ -21,7 +21,7 @@ export async function main(ns) {
         ns.ui.openTail();
     }
 
-    const statsFile = "/scripts/hacknet/stats.json";
+    const statsFile = "/euoom/hacknet/stats.json";
     let totalInvested = 0;
     let history = [];
 
@@ -38,12 +38,17 @@ export async function main(ns) {
 
     /** 데이터 저장 함수 */
     function saveStats(newRecord) {
+        const host = ns.getHostname();
         if (newRecord) {
             history.push({
                 time: new Date().toLocaleString(),
                 ...newRecord
             });
-            // 파일 크기가 너무 커지지 않도록 최근 100개만 유지 (필요시 조절)
+            
+            // 터미널(Terminal)에도 구매 내역 출력
+            ns.tprint(`[${host}] 💸 Purchased: ${newRecord.target} ($${ns.formatNumber(newRecord.cost, 2)})`);
+            
+            // 파일 크기가 너무 커지지 않도록 최근 100개만 유지
             if (history.length > 100) history.shift();
         }
         

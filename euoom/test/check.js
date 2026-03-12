@@ -26,10 +26,47 @@ export async function main(ns) {
                 ns.tprint(`✅ Found React Key: ${reactKey}`);
                 const internal = root[reactKey];
                 
-                // 엔진의 생얼(Naked Engine)을 찾기 위한 내부 속성 출력 시도
-                ns.tprint("- Data structure: " + typeof internal);
-            }
-        }
+                // 엔진의 생얼(Naked Engine)을 찾기 위한 심층 탐색
+                ns.tprint("- Inspecting React internals for Engine/Player hooks...");
+                
+                function findInReact(obj, depth = 0, path = "") {
+                    if (!obj || depth > 8) return;
+                    
+                    // 핵심 키워드 검색
+                    const keys = Object.keys(obj);
+                    for (const key of keys) {
+                        if (key.toLowerCase().includes("player") || key.toLowerCase().includes("worker")) {
+                            ns.tprint(`[!] Found potential hook: ${path}.${key} (${typeof obj[key]})`);
+                        }
+                        
+                        if (key === "stateNode" && obj[key]) {
+                            const sn = obj[key];
+                            // stateNode가 실제 돔이나 리액트 인스턴스일 때 유용한 정보가 많음
+                            if (sn.props && sn.props.ns) {
+                                ns.tprint("🎯 JACKPOT: Found naked 'ns' in stateNode.props!");
+                                return sn.props.ns;
+                            }
+                        }
+                    }
+
+                    // 재귀 탐색 (child, sibling, memoizedProps, memoizedState)
+                    if (obj.child) findInReact(obj.child, depth + 1, path + ".child");
+                    if (obj.sibling) findInReact(obj.sibling, depth + 1, path + ".sibling");
+                    if (obj.memoizedProps) {
+                        const props = obj.memoizedProps;
+                        if (props.router || props.terminal || props.player) {
+                            ns.tprint(`[!] Found interesting Props at depth ${depth}`);
+                        }
+                    }
+                }
+
+                const engine = findInReact(internal);
+                if (engine) {
+                    ns.tprint("✅ Naked Engine acquired. Testing bypass call (getServer)...");
+                    // 램 체크 프록시를 거치지 않는 직접 호출 테스트
+                    const server = engine.getServer("home");
+                    ns.tprint(`✅ Success! Home Max RAM via Naked Engine: ${server.maxRam}GB`);
+                }
 
         // 4. 터미널 하이라이트
         const terminals = doc.querySelectorAll(".MuiTypography-root"); // 비트버너 터미널 클래스 예시

@@ -1,5 +1,5 @@
 {
-    "version": "1.0.4",
+    "version": "1.0.5",
     "files": [
         "euoom/analyze/full_scan.js",
         "euoom/analyze/crawler.js",
@@ -15,8 +15,12 @@
         "euoom/lib/hacknet.js",
         "euoom/setup/infiltrate.js",
         "euoom/setup/nuking.js",
-        "euoom/test/ram_fat.js",
-        "euoom/test/ram_slim.js",
+        "euoom/test/ram_lab.js",
+        "euoom/test/functions/dynamic_hack.js",
+        "euoom/test/functions/dynamic_scan.js",
+        "euoom/test/functions/dynamic_hacknet.js",
+        "euoom/test/functions/static_hack.js",
+        "euoom/test/functions/static_scan.js",
         "euoom/util/backup.js",
         "euoom/util/run_hackAnalyze.js",
         "euoom/util/run_growthAnalyze.js",

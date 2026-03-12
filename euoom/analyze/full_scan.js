@@ -34,13 +34,19 @@ export async function main(ns) {
                     // [Hacking]
                     maxMoney: ns.getServerMaxMoney(current),
                     requiredHacking: ns.getServerRequiredHackingLevel(current),
+                    hackTime: ns.getHackTime(current),
+                    hackPercent: ns.hackAnalyze(current), // % stolen per thread
                     
                     // [Growth]
                     growth: ns.getServerGrowth(current),
+                    growTime: ns.getGrowTime(current),
+                    growthThreads2x: ns.growthAnalyze(current, 2), // threads for 2x growth
                     
                     // [Security]
                     minSecurity: ns.getServerMinSecurityLevel(current),
-                    baseSecurity: ns.getServerBaseSecurityLevel(current)
+                    baseSecurity: ns.getServerBaseSecurityLevel(current),
+                    weakenTime: ns.getWeakenTime(current),
+                    weakenAmount: ns.weakenAnalyze(1) // security reduction per thread
                 };
             } catch (e) {
                 ns.tprint(`[Warning] Failed to scan stats for ${current}: ${e}`);

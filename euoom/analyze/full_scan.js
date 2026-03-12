@@ -2,10 +2,12 @@
 export async function main(ns) {
     const startTime = Date.now();
     const rawDB = {};     // API 순수 데이터 (db.json)
-    const analysisDB = {}; // 계산된 가공 데이터 (analysis.json)
     
     const visited = new Set();
     const queue = ["home"];
+    const myHackLevel = ns.getHackingLevel();
+    const targets = {};  // 실시간 공격 가능 서버 (정밀 분석)
+    const others = {};   // 현재 공격 불가능/무의미한 서버 (기초 정보)
 
     ns.tprint("=== Starting Dual-Layer Network Scan ===");
 
@@ -22,102 +24,80 @@ export async function main(ns) {
         if (current === "home") continue;
 
         try {
-            // 1. 순수 데이터 수집 (Raw API Data)
             const cMoney = ns.getServerMoneyAvailable(current);
             const mMoney = ns.getServerMaxMoney(current);
-            const mRam = ns.getServerMaxRam(current);
             const reqHack = ns.getServerRequiredHackingLevel(current);
-            const reqPorts = ns.getServerNumPortsRequired(current);
-            const growth = ns.getServerGrowth(current);
-            const minSec = ns.getServerMinSecurityLevel(current);
-            const baseSec = ns.getServerBaseSecurityLevel(current);
             
-            const hTime = ns.getHackTime(current);
-            const gTime = ns.getGrowTime(current);
-            const wTime = ns.getWeakenTime(current);
-            
-            const hPercent = ns.hackAnalyze(current);
-            const wAmount = ns.weakenAnalyze(1);
-
+            // 1. 순수 데이터 수집 (db.json용)
             rawDB[current] = {
                 hostname: current,
-                maxRam: mRam,
-                numPortsRequired: reqPorts,
                 maxMoney: mMoney,
-                currentMoney: cMoney,
                 requiredHacking: reqHack,
-                growth: growth,
-                minSecurity: minSec,
-                baseSecurity: baseSec,
-                hackTime: hTime,
-                growTime: gTime,
-                weakenTime: wTime,
-                hackPercent: hPercent,
-                weakenAmount: wAmount
+                maxRam: ns.getServerMaxRam(current),
+                growth: ns.getServerGrowth(current),
+                minSecurity: ns.getServerMinSecurityLevel(current)
             };
 
-            // 2. 가공 데이터 계산 (Processed Metrics)
-            const hTimeSec = hTime / 1000;
-            const gTimeSec = gTime / 1000;
-            const wTimeSec = wTime / 1000;
-            
-            const hAmount = cMoney * hPercent;
-            const hMaxAmount = mMoney * hPercent;
-            const gRatio = mMoney > cMoney ? mMoney / Math.max(cMoney, 1) : 1;
-            const gThreadsToMax = ns.growthAnalyze(current, gRatio);
-            
-            // 성장 화력(Power) 계산: 1스레드당 늘어나는 배율
-            const gThreads2x = ns.growthAnalyze(current, 2);
-            const gPower = (Math.pow(2, 1 / Math.max(gThreads2x, 1)) - 1);
+            // 2. 가공 데이터 및 그룹화 (analysis.json용)
+            const isTargetable = myHackLevel >= reqHack && mMoney > 0;
 
-            // [HGW Weaken-Anchored Ratio Analysis] - 위큰 1개를 기준으로 한 상대적 정수 비율
-            const targetPct = 0.01; 
-            const tH_raw = targetPct / Math.max(hPercent, 0.000001);
-            const tG_raw = ns.growthAnalyze(current, 1 / (1 - (tH_raw * hPercent)));
-            const tW_raw = (tH_raw * 0.002 + tG_raw * 0.004) / wAmount;
-            
-            // 위큰(tW_raw)을 1로 기준 잡고 정규화
-            const anchor = tW_raw;
-            const rH = Math.max(Math.floor(tH_raw / anchor), 1);
-            const rG = Math.max(Math.ceil(tG_raw / anchor), 1);
-            const rW = 1; // 위큰은 항상 1로 고정
-            
-            // [Batch Performance Analysis] - 위큰 1개 기준 유닛 성능 측정
-            const batchMoney = (rH * hPercent) * mMoney;
-            const batchRam = (rH * 1.70) + (rG * 1.75) + (rW * 1.75);
-            const efficiency = batchMoney / (batchRam * wTimeSec);
+            if (isTargetable) {
+                // [공격 가능군: 정밀 분석 수행]
+                const hTime = ns.getHackTime(current);
+                const gTime = ns.getGrowTime(current);
+                const wTime = ns.getWeakenTime(current);
+                const hPercent = ns.hackAnalyze(current);
+                const wAmount = ns.weakenAnalyze(1);
+                
+                const hTimeSec = hTime / 1000;
+                const gTimeSec = gTime / 1000;
+                const wTimeSec = wTime / 1000;
 
-            analysisDB[current] = {
-                hostname: current,
-                // [Hacking Speed]
-                hackAmount: hAmount,
-                hackSpeed: hAmount / hTimeSec,
-                maxHackSpeed: hMaxAmount / hTimeSec,
-                hackSecSpeed: 0.002 / hTimeSec,
+                const gThreads2x = ns.growthAnalyze(current, 2);
+                const gPower = (Math.pow(2, 1 / Math.max(gThreads2x, 1)) - 1);
                 
-                // [Growth Speed]
-                growthThreadsToMax: gThreadsToMax,
-                curGrowSpeed: (cMoney * gPower) / gTimeSec,
-                maxGrowSpeed: (mMoney * gPower) / gTimeSec,
-                growSecSpeed: 0.004 / gTimeSec,
+                // [HGW Weaken-Anchored Ratio Analysis]
+                const targetPct = 0.01; 
+                const tH_raw = targetPct / Math.max(hPercent, 0.000001);
+                const tG_raw = ns.growthAnalyze(current, 1 / (1 - (tH_raw * hPercent)));
+                const tW_raw = (tH_raw * 0.002 + tG_raw * 0.004) / wAmount;
+                const anchor = tW_raw;
                 
-                // [Security Speed]
-                weakenSpeed: wAmount / wTimeSec,
+                const rH = Math.max(Math.floor(tH_raw / anchor), 1);
+                const rG = Math.max(Math.ceil(tG_raw / anchor), 1);
+                const rW = 1;
                 
-                // [Batch Ratios] - Weaken-Anchored Unit (Fixed W:1)
-                ratioH: rH,
-                ratioG: rG,
-                ratioW: rW,
+                const batchMoney = (rH * hPercent) * mMoney;
+                const batchRam = (rH * 1.70) + (rG * 1.75) + (rW * 1.75);
+                const efficiency = batchMoney / (batchRam * wTimeSec);
 
-                // [Batch Tactics] - Unit Performance
-                batchMoney: batchMoney,
-                batchRam: batchRam,
-                efficiency: efficiency, 
-                
-                // [Status]
-                moneyPercent: (cMoney / Math.max(mMoney, 1)) * 100
-            };
+                // 시나리오별 사이클 시간 계산 (초)
+                const batchTime = wTimeSec;
+                const loopTime = (rH * hTimeSec) + (rG * gTimeSec) + (rW * wTimeSec);
 
+                targets[current] = {
+                    hostname: current,
+                    requiredHacking: reqHack,
+                    maxMoney: mMoney,
+                    ratioH: rH,
+                    ratioG: rG,
+                    ratioW: rW,
+                    batchMoney: batchMoney,
+                    batchRam: batchRam,
+                    batchTime: batchTime, // 병렬 배치 시간
+                    loopTime: loopTime,   // 순차 반복 시간
+                    efficiency: efficiency,
+                    moneyPercent: mMoney > 0 ? (cMoney / mMoney) * 100 : 0
+                };
+            } else {
+                // [공격 불가능/무의미군: 최소 정보만 저장]
+                others[current] = {
+                    hostname: current,
+                    requiredHacking: reqHack,
+                    maxMoney: mMoney,
+                    reason: mMoney === 0 ? "No Money" : `Low Hack Level (Need ${reqHack})`
+                };
+            }
         } catch (e) {
             ns.tprint(`[Warning] Error scanning ${current}: ${e}`);
         }
@@ -128,7 +108,7 @@ export async function main(ns) {
     const anaPath = "/euoom/analyze/analysis.json";
     
     ns.write(dbPath, JSON.stringify(rawDB, null, 4), "w");
-    ns.write(anaPath, JSON.stringify(analysisDB, null, 4), "w");
+    ns.write(anaPath, JSON.stringify({ targets, others }, null, 4), "w");
 
     ns.tprint(`------------------------------------------`);
     ns.tprint(`Scan Complete. Data separated!`);

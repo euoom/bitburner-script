@@ -1,5 +1,5 @@
 {
-    "version": "1.0.5",
+    "version": "1.0.6",
     "files": [
         "euoom/analyze/full_scan.js",
         "euoom/analyze/crawler.js",
@@ -19,8 +19,6 @@
         "euoom/test/functions/dynamic_hack.js",
         "euoom/test/functions/dynamic_scan.js",
         "euoom/test/functions/dynamic_hacknet.js",
-        "euoom/test/functions/static_hack.js",
-        "euoom/test/functions/static_scan.js",
         "euoom/util/backup.js",
         "euoom/util/run_hackAnalyze.js",
         "euoom/util/run_growthAnalyze.js",

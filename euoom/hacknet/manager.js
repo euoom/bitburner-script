@@ -1,5 +1,6 @@
 /** @param {NS} ns */
 export async function main(ns) {
+    // BUILD_VERSION: 20260312_1245
     ns.disableLog('ALL');
 
     const MAX_PAYBACK_TIME_SECONDS = 3600 * 2;
@@ -8,33 +9,22 @@ export async function main(ns) {
 
     let totalInvested = 0;
     let history = [];
+    let lastWaitTarget = ""; // 같은 대상을 기다릴 때 로그 중복 출력 방지
 
-    // 저장된 데이터 불러오기
     if (ns.fileExists(statsFile)) {
         try {
             const savedData = JSON.parse(ns.read(statsFile));
             totalInvested = savedData.totalInvested || 0;
             history = savedData.history || [];
-        } catch (e) {
-            // 초기화
-        }
+        } catch (e) {}
     }
 
-    /** 데이터 저장 및 터미널 출력 함수 */
     function saveStats(newRecord, avgPayback, nextPayback) {
         if (newRecord) {
-            const record = {
-                time: new Date().toLocaleString(),
-                avgPaybackBefore: avgPayback,
-                nextItemPayback: nextPayback,
-                ...newRecord
-            };
-            history.push(record);
-            
-            // 효율성 텍스트 구성
             let avgText = "N/A";
-            let diffText = "🆕 First Investment";
+            let diffText = "🆕 Initial";
             
+            // avgPayback이 UINT32_MAX보다 작을 때만 숫자로 표시
             if (avgPayback > 0 && avgPayback < 4000000000) {
                 avgText = `${Math.floor(avgPayback / 60)}m`;
                 const diff = nextPayback - avgPayback;
@@ -43,21 +33,16 @@ export async function main(ns) {
                     : `📉 Efficiency Gain: ${Math.abs(Math.floor(diff/60))}m`;
             }
 
-            // 터미널 출력
             ns.tprint(`[${host}] 💸 Purchased: ${newRecord.target} ($${ns.formatNumber(newRecord.cost, 2)})`);
             ns.tprint(`[${host}] 📊 Avg Payback: ${avgText} -> Item: ${Math.floor(nextPayback / 60)}m (${diffText})`);
             
+            totalInvested += newRecord.cost;
+            history.push({ time: new Date().toLocaleString(), ...newRecord });
             if (history.length > 100) history.shift();
         }
-        
-        const data = { 
-            totalInvested: totalInvested,
-            history: history
-        };
-        ns.write(statsFile, JSON.stringify(data, null, 2), "w");
+        ns.write(statsFile, JSON.stringify({ totalInvested, history }, null, 2), "w");
     }
 
-    /** 수입 증가량 계산 함수 */
     function getProdIncrease(level, ram, cores, newLevel, newRam, newCores) {
         const mult = ns.getHacknetMultipliers().production;
         const currentProd = level * 1.5 * Math.pow(1.035, ram - 1) * ((cores + 5) / 6) * mult;
@@ -65,19 +50,18 @@ export async function main(ns) {
         return nextProd - currentProd;
     }
 
-    ns.tprint(`[${host}] 🚀 Hacknet Manager started in background.`);
+    ns.tprint(`[${host}] 🚀 Hacknet Manager (v1.2) active in background.`);
 
     while (true) {
         let bestOption = null;
         let minPaybackTime = Infinity;
         const numNodes = ns.hacknet.numNodes();
 
+        // ROI 분석 로직
         const newNodeCost = ns.hacknet.getPurchaseNodeCost();
         const newNodeProd = getProdIncrease(0, 0, 0, 1, 1, 1);
-        const newNodePayback = newNodeCost / newNodeProd;
-
-        if (newNodePayback < minPaybackTime) {
-            minPaybackTime = newNodePayback;
+        if (newNodeCost / newNodeProd < minPaybackTime) {
+            minPaybackTime = newNodeCost / newNodeProd;
             bestOption = { type: 'node', cost: newNodeCost, prod: newNodeProd, text: "New Node" };
         }
 
@@ -89,14 +73,12 @@ export async function main(ns) {
                 minPaybackTime = lvlCost / lvlProd;
                 bestOption = { type: 'level', index: i, cost: lvlCost, prod: lvlProd, text: `Node ${i} Level` };
             }
-
             const ramCost = ns.hacknet.getRamUpgradeCost(i, 1);
             const ramProd = getProdIncrease(stats.level, stats.ram, stats.cores, stats.level, stats.ram * 2, stats.cores);
             if (ramCost / ramProd < minPaybackTime) {
                 minPaybackTime = ramCost / ramProd;
                 bestOption = { type: 'ram', index: i, cost: ramCost, prod: ramProd, text: `Node ${i} RAM` };
             }
-
             const coreCost = ns.hacknet.getCoreUpgradeCost(i, 1);
             const coreProd = getProdIncrease(stats.level, stats.ram, stats.cores, stats.level, stats.ram, stats.cores + 1);
             if (coreCost / coreProd < minPaybackTime) {
@@ -105,13 +87,13 @@ export async function main(ns) {
             }
         }
 
+        // 실행
         if (bestOption && (minPaybackTime < MAX_PAYBACK_TIME_SECONDS || numNodes === 0)) {
-            if (ns.getServerMoneyAvailable("home") >= bestOption.cost) {
-                // 구매 전 현재 평균 효율 계산
+            const myMoney = ns.getServerMoneyAvailable("home");
+            if (myMoney >= bestOption.cost) {
                 let currentTotalProd = 0;
-                for (let j = 0; j < ns.hacknet.numNodes(); j++) {
-                    currentTotalProd += ns.hacknet.getNodeStats(j).production;
-                }
+                for (let j = 0; j < ns.hacknet.numNodes(); j++) currentTotalProd += ns.hacknet.getNodeStats(j).production;
+                
                 const avgPayback = (currentTotalProd > 0 && totalInvested > 0) ? (totalInvested / currentTotalProd) : 4294967295;
                 const nextPayback = bestOption.cost / bestOption.prod;
 
@@ -122,12 +104,15 @@ export async function main(ns) {
                 if (bestOption.type === 'core') success = ns.hacknet.upgradeCore(bestOption.index, 1);
                 
                 if (success) {
-                    totalInvested += bestOption.cost;
-                    saveStats({
-                        type: bestOption.type,
-                        target: bestOption.text,
-                        cost: bestOption.cost
-                    }, avgPayback, nextPayback);
+                    saveStats({ type: bestOption.type, target: bestOption.text, cost: bestOption.cost }, avgPayback, nextPayback);
+                    lastWaitTarget = ""; // 구매 성공 시 대기 로그 리셋
+                }
+            } else {
+                // 돈이 부족할 때 터미널에 "딱 한 번만" 대기 로그 출력 (Silent 유지하되 생존 신고)
+                if (lastWaitTarget !== bestOption.text) {
+                    const need = bestOption.cost - myMoney;
+                    ns.tprint(`[${host}] ⏳ Waiting for funds: ${bestOption.text} ($${ns.formatNumber(bestOption.cost, 2)}). Need $${ns.formatNumber(need, 2)} more...`);
+                    lastWaitTarget = bestOption.text;
                 }
             }
         }

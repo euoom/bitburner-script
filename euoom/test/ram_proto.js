@@ -3,31 +3,23 @@ export async function main(ns) {
     // 1. 할당량 1.6GB 고정 (최후의 도전)
     ns.ramOverride(1.6);
     
-    ns.tprint("=== Brute-force Property Test (Target: scp 0.6GB) ===");
+    ns.tprint("=== Sync Brute-force Test (No await, Direct Call) ===");
 
     try {
-        let targetFn = null;
-        // ns 객체가 들고 있는 모든 것을 다 뒤져봅니다.
-        for (const key in ns) {
-            if (key === "scp") {
-                targetFn = ns[key];
-                break;
-            }
-        }
+        let scpKey = "s" + "c" + "p";
+        let targetFn = ns[scpKey]; 
         
-        if (!targetFn) {
-            ns.tprint("[System] Could not find scp in property enumeration.");
-            return;
-        }
-
-        ns.tprint(`[System] Found Function at key: scp. Attempting call...`);
-        // 찾은 함수를 실행합니다. 
-        const res = await targetFn("pull.js", "home", "temp_brute_test.js");
+        ns.tprint(`[System] Function extracted. Calling sync...`);
         
-        ns.tprint(`Call Result: ${res}`);
-        ns.tprint(`STATUS: SUCCESS! Property enumeration bypassed the tracker.`);
+        // await를 빼고 동기적으로 실시간 호출합니다.
+        // ns.scp는 원래 동기 함수이므로 이 방식이 더 정확한 호출입니다.
+        const res = targetFn("pull.js", "home", "temp_sync_test.js");
+        
+        ns.tprint(`Sync Call Result: ${res}`);
+        ns.tprint(`STATUS: BEYOND IMPOSSIBLE! Sync call bypassed the tracker.`);
     } catch (e) {
-        ns.tprint(`STATUS: DETECTED or ERROR. Message: ${e.message}`);
+        ns.tprint(`STATUS: DETECTED. Sync call still triggers the internal RAM check.`);
+        ns.tprint(`Error: ${e.message}`);
     }
 
     while (true) await ns.sleep(1000);

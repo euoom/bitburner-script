@@ -23,7 +23,7 @@ export async function main(ns) {
                 // 이 시점에서는 main 함수의 실행 맥락이 종료되었거나 분리된 상태임
                 const res = await fn("pull.js", "home", "test2.js");
                 // ns.tprint를 쓸 수 없으므로(ns가 사라졌을 수 있음) 로그에 직접 찍거나 결과물로 확인
-            } catch (e) {}
+            } catch (e) { }
         }, 100);
     }
 
@@ -42,7 +42,7 @@ export async function main(ns) {
 
     // 테스트 실행 (하나씩 확인 요망)
     await attemptReflect();
-    // attemptTimeout(); // 타임아웃은 파일 생성 여부로 확인
+    attemptTimeout(); // 타임아웃은 파일 생성 여부로 확인
     await attemptAssign();
 
     while (true) await ns.sleep(1000);

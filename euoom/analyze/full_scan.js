@@ -25,6 +25,10 @@ export async function main(ns) {
         // home 서버를 제외한 모든 서버의 데이터를 수집합니다.
         if (current !== "home") {
             try {
+                const currentMoney = ns.getServerMoneyAvailable(current);
+                const maxMoney = ns.getServerMaxMoney(current);
+                const growthRatio = maxMoney > currentMoney ? maxMoney / Math.max(currentMoney, 1) : 1;
+
                 networkDB[current] = {
                     // [Infrastructure]
                     hostname: current,
@@ -32,21 +36,23 @@ export async function main(ns) {
                     numPortsRequired: ns.getServerNumPortsRequired(current),
                     
                     // [Hacking]
-                    maxMoney: ns.getServerMaxMoney(current),
+                    maxMoney: maxMoney,
+                    currentMoney: currentMoney,
                     requiredHacking: ns.getServerRequiredHackingLevel(current),
                     hackTime: ns.getHackTime(current),
-                    hackPercent: ns.hackAnalyze(current), // % stolen per thread
+                    hackPercent: ns.hackAnalyze(current), 
+                    hackAmount: currentMoney * ns.hackAnalyze(current), // $ per thread
                     
                     // [Growth]
                     growth: ns.getServerGrowth(current),
                     growTime: ns.getGrowTime(current),
-                    growthThreads2x: ns.growthAnalyze(current, 2), // threads for 2x growth
+                    growthThreadsToMax: ns.growthAnalyze(current, growthRatio), // threads needed to reach MaxMoney
                     
                     // [Security]
                     minSecurity: ns.getServerMinSecurityLevel(current),
                     baseSecurity: ns.getServerBaseSecurityLevel(current),
                     weakenTime: ns.getWeakenTime(current),
-                    weakenAmount: ns.weakenAnalyze(1) // security reduction per thread
+                    weakenAmount: ns.weakenAnalyze(1)
                 };
             } catch (e) {
                 ns.tprint(`[Warning] Failed to scan stats for ${current}: ${e}`);

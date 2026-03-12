@@ -21,22 +21,35 @@ export async function main(ns) {
         ns.ui.openTail();
     }
 
+    const statsFile = "/scripts/hacknet/stats.json";
+    let totalInvested = 0;
+
+    // 저장된 데이터 불러오기
+    if (ns.fileExists(statsFile)) {
+        try {
+            const savedData = JSON.parse(ns.read(statsFile));
+            totalInvested = savedData.totalInvested || 0;
+        } catch (e) {
+            ns.print("⚠️ Failed to read stats.json, initializing...");
+        }
+    }
+
+    /** 데이터 저장 함수 */
+    function saveStats() {
+        const data = { totalInvested: totalInvested };
+        ns.write(statsFile, JSON.stringify(data), "w");
+    }
+
     while (true) {
         let bestOption = null;
         let minPaybackTime = Infinity;
-        let totalInvested = 0;
         let totalProduction = 0;
 
         const numNodes = ns.hacknet.numNodes();
 
-        // 1. 현재 네트워크 전체 상태 분석
+        // 1. 현재 생산량만 계산 (누적 비용은 파일에서 관리)
         for (let i = 0; i < numNodes; i++) {
-            const stats = ns.hacknet.getNodeStats(i);
-            totalProduction += stats.production;
-
-            // 누적 투자액 계산 (이전 레벨까지의 비용을 합산하는 방식은 API 제약상 근사치로 계산되거나 기록이 필요함)
-            // 여기서는 현재 노드들의 상태를 유지하기 위한 '현재 가치' 비용을 임시로 사용하거나 0으로 둡니다.
-            // 실제 정확한 누적액은 스크립트 실행 이후부터 추적하거나 로그를 통해 확인해야 합니다.
+            totalProduction += ns.hacknet.getNodeStats(i).production;
         }
 
         // 2. 새로운 노드 구입 검토
@@ -82,6 +95,7 @@ export async function main(ns) {
         const host = ns.getHostname();
         ns.print(`[${host}] --- Hacknet ROI Analyzer ---`);
         ns.print(`Nodes: ${numNodes} | Total Income: $${ns.formatNumber(totalProduction, 2)}/s`);
+        ns.print(`Total Invested: $${ns.formatNumber(totalInvested, 2)}`);
         if (isDebug) ns.print(`⚠️ DEBUG MODE: Analysis Only`);
         ns.print(`------------------------------------`);
 
@@ -100,10 +114,16 @@ export async function main(ns) {
                 if (ns.getServerMoneyAvailable("home") >= bestOption.cost) {
                     if (!isDebug) {
                         ns.print(`💰 Action: Purchasing...`);
-                        if (bestOption.type === 'node') ns.hacknet.purchaseNode();
-                        if (bestOption.type === 'level') ns.hacknet.upgradeLevel(bestOption.index, 1);
-                        if (bestOption.type === 'ram') ns.hacknet.upgradeRam(bestOption.index, 1);
-                        if (bestOption.type === 'core') ns.hacknet.upgradeCore(bestOption.index, 1);
+                        let success = false;
+                        if (bestOption.type === 'node') success = ns.hacknet.purchaseNode() !== -1;
+                        if (bestOption.type === 'level') success = ns.hacknet.upgradeLevel(bestOption.index, 1);
+                        if (bestOption.type === 'ram') success = ns.hacknet.upgradeRam(bestOption.index, 1);
+                        if (bestOption.type === 'core') success = ns.hacknet.upgradeCore(bestOption.index, 1);
+                        
+                        if (success) {
+                            totalInvested += bestOption.cost;
+                            saveStats();
+                        }
                     } else {
                         ns.print(`ℹ️ [DEBUG] Afforded! Purchase skipped.`);
                     }

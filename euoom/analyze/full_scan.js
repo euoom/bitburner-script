@@ -28,6 +28,11 @@ export async function main(ns) {
                 const currentMoney = ns.getServerMoneyAvailable(current);
                 const maxMoney = ns.getServerMaxMoney(current);
                 const growthRatio = maxMoney > currentMoney ? maxMoney / Math.max(currentMoney, 1) : 1;
+                
+                // 시간 환산 (ms -> sec)
+                const hTimeSec = ns.getHackTime(current) / 1000;
+                const gTimeSec = ns.getGrowTime(current) / 1000;
+                const wTimeSec = ns.getWeakenTime(current) / 1000;
 
                 networkDB[current] = {
                     // [Infrastructure]
@@ -41,18 +46,21 @@ export async function main(ns) {
                     requiredHacking: ns.getServerRequiredHackingLevel(current),
                     hackTime: ns.getHackTime(current),
                     hackPercent: ns.hackAnalyze(current), 
-                    hackAmount: currentMoney * ns.hackAnalyze(current), // $ per thread
+                    hackAmount: currentMoney * ns.hackAnalyze(current),
+                    hackSpeed: (currentMoney * ns.hackAnalyze(current)) / hTimeSec, // $/sec per thread
                     
                     // [Growth]
                     growth: ns.getServerGrowth(current),
                     growTime: ns.getGrowTime(current),
-                    growthThreadsToMax: ns.growthAnalyze(current, growthRatio), // threads needed to reach MaxMoney
+                    growthThreadsToMax: ns.growthAnalyze(current, growthRatio),
+                    growSpeed: (maxMoney - currentMoney) / (Math.max(ns.growthAnalyze(current, growthRatio), 1) * gTimeSec), // $ recovered / sec per thread
                     
                     // [Security]
                     minSecurity: ns.getServerMinSecurityLevel(current),
                     baseSecurity: ns.getServerBaseSecurityLevel(current),
                     weakenTime: ns.getWeakenTime(current),
-                    weakenAmount: ns.weakenAnalyze(1)
+                    weakenAmount: ns.weakenAnalyze(1),
+                    weakenSpeed: ns.weakenAnalyze(1) / wTimeSec // point reduced / sec per thread
                 };
             } catch (e) {
                 ns.tprint(`[Warning] Failed to scan stats for ${current}: ${e}`);

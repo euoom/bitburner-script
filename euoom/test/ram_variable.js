@@ -1,12 +1,25 @@
 /** @param {NS} ns */
 export async function main(ns) {
-    // 사용자님의 가설 테스트: ns를 다른 이름으로 바꾸면 분석기가 속을까?
-    const ms = ns; 
+// 레벨 2: 더 복잡한 우회 시도
     
-    ns.tprint("=== Variable Aliasing Test ===");
+    // 시도 1: 배열에 넣었다가 빼기
+    const list = [ns];
+    const ms1 = list[0];
     
-    // 점 표기법을 그대로 사용하지만 변수명은 ms입니다.
-    const nodes = ms.hacknet.numNodes();
+    // 시도 2: 함수 인자로 넘겨서 받기
+    function bypass(x) { return x; }
+    const ms2 = bypass(ns);
+    
+    // 시도 3: 객체 속성으로 숨기기
+    const container = { api: ns };
+    const ms3 = container.api;
+
+    ns.tprint("=== Advanced Variable Aliasing Test ===");
+    
+    // 아래 중 하나만 살아보고 나머지는 주석처리하며 테스트해볼 수 있습니다.
+    const nodes = ms1.hacknet.numNodes(); 
+    // const nodes = ms2.hacknet.numNodes();
+    // const nodes = ms3.hacknet.numNodes();
     
     ns.tprint(`Hacknet Nodes: ${nodes}`);
     

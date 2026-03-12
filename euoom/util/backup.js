@@ -1,7 +1,7 @@
 /** @param {NS} ns */
 export async function main(ns) {
     const host = ns.getHostname();
-    const targets = ["deploy", "euoom", "util"];
+    const targets = [];
     const allFiles = ns.ls(host);
     const backupData = {
         timestamp: new Date().toLocaleString(),
@@ -9,12 +9,16 @@ export async function main(ns) {
         files: {}
     };
 
-    ns.tprint(`[${host}] 🔍 Scanning folders for backup: ${targets.join(", ")}...`);
+    if (targets.length > 0) {
+        ns.tprint(`[${host}] 🔍 Scanning specified folders: ${targets.join(", ")}...`);
+    } else {
+        ns.tprint(`[${host}] 🔍 No target specified. Scanning ALL files...`);
+    }
 
     let count = 0;
     for (const file of allFiles) {
-        // 지정된 폴더로 시작하는 파일들만 필터링
-        if (targets.some(folder => file.startsWith(folder + "/"))) {
+        // targets가 비어있으면 전체 백업, 아니면 지정된 폴더로 시작하는 파일만 필터링
+        if (targets.length === 0 || targets.some(folder => file.startsWith(folder + "/"))) {
             backupData.files[file] = ns.read(file);
             count++;
         }

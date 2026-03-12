@@ -51,6 +51,16 @@ export async function main(ns) {
         { name: "Min Sec", path: "/euoom/test/functions/dynamic_getServerMinSecurityLevel.js", staticRam: 0.1 },
         { name: "Num Ports", path: "/euoom/test/functions/dynamic_getServerNumPortsRequired.js", staticRam: 0.1 },
         { name: "Server Ram", path: "/euoom/test/functions/dynamic_getServerRam.js", staticRam: 0.1 },
+        { name: "Req Hack", path: "/euoom/test/functions/dynamic_getServerRequiredHackingLevel.js", staticRam: 0.1 },
+        { name: "Share Power", path: "/euoom/test/functions/dynamic_getSharePower.js", staticRam: 0.1 },
+        { name: "Last Aug", path: "/euoom/test/functions/dynamic_getTimeSinceLastAug.js", staticRam: 0.1 },
+        { name: "Exp Gain Tot", path: "/euoom/test/functions/dynamic_getTotalScriptExpGain.js", staticRam: 0.1 },
+        { name: "Income Tot", path: "/euoom/test/functions/dynamic_getTotalScriptIncome.js", staticRam: 0.1 },
+        { name: "Grow", path: "/euoom/test/functions/dynamic_grow.js", staticRam: 0.175 },
+        { name: "Growth Sec", path: "/euoom/test/functions/dynamic_growthAnalyzeSecurity.js", staticRam: 0.1 },
+        { name: "Root Access", path: "/euoom/test/functions/dynamic_hasRootAccess.js", staticRam: 0.05 },
+        { name: "Tor Router", path: "/euoom/test/functions/dynamic_hasTorRouter.js", staticRam: 0.05 },
+        { name: "HTTP Worm", path: "/euoom/test/functions/dynamic_httpworm.js", staticRam: 0.05 },
 
         // --- [Level 2: Heavy Server & Player (2.0GB ~ 4.0GB)] ---
         { name: "Get Server", path: "/euoom/test/functions/dynamic_getServer.js", staticRam: 2.0 },

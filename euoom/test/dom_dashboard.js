@@ -1,4 +1,4 @@
-import { syncSaveData, getServerMoneyAvailable, getServerMaxRam, getServerUsedRam } from "/euoom/lib/saveReader.js";
+import { syncSaveData, getServerMoneyAvailable, getServerMaxRam, getServerUsedRam } from "/euoom/lib/save_data_getter.js";
 
 /** @param {NS} ns */
 export async function main(ns) {

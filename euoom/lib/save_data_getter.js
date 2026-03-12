@@ -1,5 +1,5 @@
 /** 
- * euoom/lib/saveReader.js
+ * euoom/lib/save_data_getter.js
  * 0GB cost API bypass by reading directly from IndexedDB save data.
  */
 
@@ -17,19 +17,19 @@ function getGlobal() {
  */
 let _lastReadTime = 0;
 let _cachedGameState = null;
-let _serversMap = new Map(); // 고속 동기 조회를 위한 맵
+let _serversMap = new Map(); 
 let _playerData = null;
 
 const CACHE_TTL_MS = 1000; 
 
 /**
- * [Async] DB에서 데이터를 비동기로 읽어와 내부 캐시를 갱신합니다.
- * 스크립트의 메인 루프나 초기화 단계에서 반드시 await로 호출해야 합니다.
+ * [Async] DB에서 데이터를 비동기(Async)로 읽어와 내부 캐시를 갱신합니다.
+ * 이 함수는 singularity.getSaveData(16GB)를 0GB로 대체하기 위한 핵심 '동기화' 로직입니다.
  */
 export async function syncSaveData(forceRefresh = false) {
     const now = Date.now();
     if (!forceRefresh && _cachedGameState && (now - _lastReadTime < CACHE_TTL_MS)) {
-        return; // 캐시 유효
+        return; 
     }
 
     const g = getGlobal();
@@ -72,7 +72,7 @@ export async function syncSaveData(forceRefresh = false) {
     const jsonStr = new g.TextDecoder().decode(merged);
     const gameState = JSON.parse(jsonStr);
 
-    // 고속 조회를 위한 데이터 인메모리 파싱 (동기화 용)
+    // 내부 맵 갱신
     const allServersRaw = JSON.parse(Object.values(gameState.data.AllServersSave).join(""));
     _serversMap.clear();
     for (const s of allServersRaw) {
@@ -86,9 +86,16 @@ export async function syncSaveData(forceRefresh = false) {
     _lastReadTime = Date.now();
 }
 
-/** CORE ENTITY API (동기 호출)
- * 주의: 사용하기 전에 반드시 await syncSaveData() 를 최소 1회 호출해야 합니다.
+/**
+ * [Sync] singularity.getSaveData() (16GB) 의 0GB 대체제.
+ * (주의: 이 함수는 파싱된 JSON 객체를 반환하며, 미리 await syncSaveData()가 호출되어 있어야 함)
  */
+export function getSaveData() {
+    if (!_cachedGameState) throw new Error("Data not synced. Call await syncSaveData() first.");
+    return _cachedGameState;
+}
+
+/** CORE ENTITY API (동기 호출) */
 export function getAllServers() {
     if (_serversMap.size === 0) throw new Error("Data not synced. Call await syncSaveData() first.");
     return Array.from(_serversMap.values());
@@ -106,22 +113,7 @@ export function getPlayer() {
     return _playerData;
 }
 
-export function getHackableServers() {
-    const servers = getAllServers();
-    const player = getPlayer();
-    return servers.filter(s => 
-        !s.purchasedByPlayer &&
-        s.hostname !== "home" &&
-        s.requiredHackingSkill <= player.skills.hacking &&
-        s.hasAdminRights
-    );
-}
-
-/** 
- * COMPATIBILITY WRAPPERS (0GB, Sync)
- * 오리지널 NS API 처럼 완전 동기식으로 사용할 수 있습니다.
- * (ns 파라미터도 요구하지 않습니다)
- */
+/** COMPATIBILITY WRAPPERS (0GB, Sync) */
 export function getServerMoneyAvailable(hostname) { return getServer(hostname).moneyAvailable; }
 export function getServerMaxMoney(hostname) { return getServer(hostname).moneyMax; }
 export function getServerMaxRam(hostname) { return getServer(hostname).maxRam; }

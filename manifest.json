@@ -12,7 +12,7 @@
         "euoom/hack/engine.js",
         "euoom/hacknet/manager.js",
         "euoom/lib/hacknet.js",
-        "euoom/lib/saveReader.js",
+        "euoom/lib/save_data_getter.js",
         "euoom/setup/infiltrate.js",
         "euoom/setup/nuking.js",
         "euoom/test/check.js",

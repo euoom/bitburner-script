@@ -18,6 +18,7 @@ export async function main(ns) {
             continue;
         }
         while (ns["isRunning"](pid)) await ns["sleep"](50);
+        await ns["sleep"](150); // 개별 워커 간 RAM 회수 대기 시간
     }
 
     ns["tprint"]("[Enricher] All atomic workers finished. db.json is ready.");

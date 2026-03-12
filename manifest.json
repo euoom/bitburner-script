@@ -9,6 +9,7 @@
         "euoom/hacknet/manager.js",
         "euoom/setup/infiltrate.js",
         "euoom/setup/nuking.js",
+        "euoom/test/ram_experimental.js",
         "euoom/test/ram_fat.js",
         "euoom/test/ram_function.js",
         "euoom/test/ram_slim.js",

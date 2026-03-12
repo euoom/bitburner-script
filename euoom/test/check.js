@@ -1,74 +1,63 @@
 /** @param {NS} ns */
 export async function main(ns) {
-    ns.tprint("=== 🛠️ CHECK.JS: Internal Engine Probe ===");
+    ns.tprint("=== 🛠️ CHECK.JS: Zero-RAM Data Extraction ===");
 
     try {
-        // 1. 글로벌 객체 확보 (이미 25GB 우회를 통해 통로가 열림)
         const g = ns.hack.constructor("return this")();
         
-        // 2. appSaveFns 심층 분석
-        if (g.appSaveFns && g.appSaveFns.getSaveData) {
-            ns.tprint("✅ Calling appSaveFns.getSaveData()...");
-            const saveData = await g.appSaveFns.getSaveData();
-            // 데이터 타입 및 크기 확인
-            ns.tprint(`- Save Data Type: ${typeof saveData}`);
-            if (typeof saveData === "string") {
-                ns.tprint(`- Length: ${saveData.length} chars`);
-                // 샘플 보기 (처음 200자)
-                ns.tprint(`- Snippet: ${saveData.substring(0, 200)}...`);
-            } else if (typeof saveData === "object") {
-                ns.tprint(`- Keys: ${Object.keys(saveData).slice(0, 10).join(", ")}`);
+        // 1. LocalStorage 탈취 (16GB getSaveData 우회)
+        ns.tprint("- Attempting LocalStorage extraction (0GB)...");
+        try {
+            const ls = g["local" + "Storage"];
+            const saveKey = "bitburnerSave";
+            const rawSave = ls.getItem(saveKey);
+            
+            if (rawSave) {
+                ns.tprint(`✅ Success! Found ${saveKey} in LocalStorage.`);
+                ns.tprint(`- Raw Size: ${(rawSave.length / 1024 / 1024).toFixed(2)} MB`);
+                // 데이터의 정체 확인 (JSON 여부)
+                if (rawSave.startsWith("{") || rawSave.startsWith("[")) {
+                    ns.tprint("✅ Save data is in JSON format. We can parse it without RAM cost!");
+                }
+            } else {
+                ns.tprint("⚠️ 'bitburnerSave' not found in LocalStorage. Checking alternative keys...");
+                const allKeys = [];
+                for (let i = 0; i < ls.length; i++) allKeys.push(ls.key(i));
+                ns.tprint(`- Available keys: ${allKeys.join(", ")}`);
             }
+        } catch (e) {
+            ns.tprint("❌ LocalStorage access failed: " + e.message);
         }
 
-        // 3. 전역 객체 전수 조사 (필터링 기반)
-        ns.tprint("- Full Global Key Scanning (Engine/Player/Server keywords)...");
+        // 2. 전역 인스턴스 전수 조사 (함수 제외 객체만)
+        ns.tprint("\n- Searching for Naked Data Instances (0GB Objects)...");
         const allKeys = Object.getOwnPropertyNames(g);
-        const discovered = allKeys.filter(k => {
-            const kl = k.toLowerCase();
-            return kl.includes("player") || kl.includes("server") || kl.includes("engine") || 
-                   kl.includes("store") || kl.includes("bitnode") || kl.includes("terminal");
-        });
+        const engineKeywords = ["player", "server", "engine", "bitnode", "store"];
         
-        if (discovered.length > 0) {
-            ns.tprint(`🎯 Discovered ${discovered.length} interesting global keys:`);
-            discovered.forEach(k => {
-                try {
-                    ns.tprint(`   [!] ${k} (${typeof g[k]})`);
-                } catch(e) {}
-            });
-        }
-
-        // 3. Document를 통한 리액트 상태 저장소(Store) 탈취
-        const doc = g["doc" + "ument"];
-        if (doc) {
-            const root = doc.getElementById('root');
-            const fiberKey = Object.keys(root).find(k => k.startsWith("__reactContainer"));
-            if (fiberKey) {
-                const internal = root[fiberKey];
-                ns.tprint("✅ React Container caught. Digging for Store...");
+        for (const k of allKeys) {
+            try {
+                const kl = k.toLowerCase();
+                const isMatch = engineKeywords.some(kw => kl.includes(kw));
                 
-                // 리액트 트리에서 'state'나 'props' 명칭을 가진 데이터 뭉치 찾기
-                function deepScout(obj, depth = 0) {
-                    if (!obj || depth > 20) return;
+                if (isMatch) {
+                    const obj = g[k];
+                    const type = typeof obj;
                     
-                    if (obj.memoizedProps && obj.memoizedProps.value && obj.memoizedProps.value.player) {
-                        ns.tprint("🔥 JACKPOT: Found Player Object in React Context!");
-                        return obj.memoizedProps.value;
+                    // 함수가 아닌 객체라면 "램 체크 없는 노다지"일 확률이 높음
+                    if (type === "object" && obj !== null) {
+                        ns.tprint(`🎯 [INSTANCE] global.${k} (Object)`);
+                        const keys = Object.keys(obj).slice(0, 5);
+                        ns.tprint(`   ↳ Sub-keys: ${keys.join(", ")}`);
+                    } else if (type === "function") {
+                        // 함수는 일단 리스트만 기록 (실행은 안 함)
+                        ns.tprint(`   [LOCKED] global.${k} (Function - Cost applies)`);
                     }
-                    
-                    if (obj.child) return deepScout(obj.child, depth + 1);
                 }
-                
-                const store = deepScout(internal);
-                if (store) {
-                    ns.tprint("✅ Internal Store acquired.");
-                }
-            }
+            } catch (e) {}
         }
 
     } catch (e) {
-        ns.tprint("❌ Error: " + e.message);
+        ns.tprint("❌ Global Error: " + e.message);
     }
 
     while (true) await ns.sleep(1000);

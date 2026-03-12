@@ -1,50 +1,32 @@
 /** @param {NS} ns */
 export async function main(ns) {
     const keys = new Set();
-    let obj = ns;
-    while (obj && obj !== Object.prototype) {
-        Object.getOwnPropertyNames(obj).forEach(key => keys.add(key));
-        obj = Object.getPrototypeOf(obj);
+    
+    // 단순하게 현재 ns 객체의 모든 프로퍼티 수집
+    Object.getOwnPropertyNames(ns).forEach(key => keys.add(key));
+    
+    // 혹시 모를 프로토타입 1단계만 추가 수집
+    const proto = Object.getPrototypeOf(ns);
+    if (proto) {
+        Object.getOwnPropertyNames(proto).forEach(key => keys.add(key));
     }
 
     const sortedKeys = Array.from(keys).sort();
-    let output = "=== Bitburner NS API RAM Cost Deep Inspection ===\n";
-    output += "| Function Path                   | Cost (GB)  |\n";
-    output += "|---------------------------------|------------|\n";
+    let output = "=== Bitburner NS API RAM Cost Inspection ===\n";
+    output += "| Function Name                  | Cost (GB)  |\n";
+    output += "|--------------------------------|------------|\n";
 
-    const namespaces = ["formulas", "singularity", "corporation", "hacknet", "stock", "bladeburner", "gang", "sleeve", "stanek", "ui"];
-
-    function inspectNamespace(path, obj) {
-        if (!obj || typeof obj !== 'object') return;
-        const subKeys = Object.getOwnPropertyNames(obj).sort();
-        for (const key of subKeys) {
-            const fullPath = path ? `${path}.${key}` : key;
-            const target = obj[key];
-            
-            if (typeof target === 'function') {
-                try {
-                    const cost = ns.getFunctionRamCost(target);
-                    output += `| ${fullPath.padEnd(31)} | ${cost.toFixed(2).padStart(10)} |\n`;
-                } catch (e) {}
-            } else if (target && typeof target === 'object' && !Array.isArray(target) && key !== 'ns') {
-                // 재귀 탐색 (최대 3단계 정도만)
-                if (fullPath.split('.').length < 3) {
-                    inspectNamespace(fullPath, target);
-                }
-            }
-        }
-    }
-
-    // 기본 메소드 검사
     for (const key of sortedKeys) {
-        const target = ns[key];
-        if (typeof target === 'function') {
-            try {
-                const cost = ns.getFunctionRamCost(target);
-                output += `| ${key.padEnd(31)} | ${cost.toFixed(2).padStart(10)} |\n`;
-            } catch (e) {}
-        } else if (namespaces.includes(key)) {
-            inspectNamespace(key, target);
+        if (key === "main") continue;
+        
+        try {
+            const target = ns[key];
+            if (typeof target === 'function') {
+                const cost = ns.getFunctionRamCost(key);
+                output += `| ${key.padEnd(30)} | ${cost.toFixed(2).padStart(10)} |\n`;
+            }
+        } catch (e) {
+            // 접근 불가 항목 무시
         }
     }
 

@@ -49,21 +49,21 @@ export async function main(ns) {
                     maxMoney: maxMoney,
                     currentMoney: currentMoney,
                     requiredHacking: ns.getServerRequiredHackingLevel(current),
-                    hackTime: ns.getHackTime(current),
+                    hackTime: hTimeSec * 1000,
                     hackPercent: hPercent, 
                     hackAmount: hAmount,
                     hackSpeed: hAmount / hTimeSec,
                     
                     // [Growth]
                     growth: ns.getServerGrowth(current),
-                    growTime: ns.getGrowTime(current),
+                    growTime: gTimeSec * 1000,
                     growthThreadsToMax: gThreadsToMax,
                     growSpeed: (maxMoney - currentMoney) / (Math.max(gThreadsToMax, 1) * gTimeSec),
                     
                     // [Security]
                     minSecurity: ns.getServerMinSecurityLevel(current),
                     baseSecurity: ns.getServerBaseSecurityLevel(current),
-                    weakenTime: ns.getWeakenTime(current),
+                    weakenTime: wTimeSec * 1000,
                     weakenAmount: wAmount,
                     weakenSpeed: wAmount / wTimeSec
                 };

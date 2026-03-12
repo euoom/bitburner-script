@@ -61,6 +61,16 @@ export async function main(ns) {
         { name: "Root Access", path: "/euoom/test/functions/dynamic_hasRootAccess.js", staticRam: 0.05 },
         { name: "Tor Router", path: "/euoom/test/functions/dynamic_hasTorRouter.js", staticRam: 0.05 },
         { name: "HTTP Worm", path: "/euoom/test/functions/dynamic_httpworm.js", staticRam: 0.05 },
+        { name: "Log Enabled", path: "/euoom/test/functions/dynamic_isLogEnabled.js", staticRam: 0.0 },
+        { name: "Running", path: "/euoom/test/functions/dynamic_isRunning.js", staticRam: 0.1 },
+        { name: "Kill", path: "/euoom/test/functions/dynamic_kill.js", staticRam: 0.5 },
+        { name: "Killall", path: "/euoom/test/functions/dynamic_killall.js", staticRam: 0.5 },
+        { name: "LS", path: "/euoom/test/functions/dynamic_ls.js", staticRam: 0.2 },
+        { name: "Move Tail", path: "/euoom/test/functions/dynamic_moveTail.js", staticRam: 0.0 },
+        { name: "MV", path: "/euoom/test/functions/dynamic_mv.js", staticRam: 0.0 },
+        { name: "nFormat", path: "/euoom/test/functions/dynamic_nFormat.js", staticRam: 0.0 },
+        { name: "Next Port", path: "/euoom/test/functions/dynamic_nextPortWrite.js", staticRam: 0.0 },
+        { name: "Dev Menu", path: "/euoom/test/functions/dynamic_openDevMenu.js", staticRam: 0.0 },
 
         // --- [Level 2: Heavy Server & Player (2.0GB ~ 4.0GB)] ---
         { name: "Get Server", path: "/euoom/test/functions/dynamic_getServer.js", staticRam: 2.0 },

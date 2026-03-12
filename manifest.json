@@ -1,5 +1,5 @@
 {
-    "version": "1.1.6",
+    "version": "1.1.7",
     "files": [
         "euoom/analyze/full_scan.js",
         "euoom/analyze/crawler.js",
@@ -83,6 +83,16 @@
         "euoom/test/functions/dynamic_hasRootAccess.js",
         "euoom/test/functions/dynamic_hasTorRouter.js",
         "euoom/test/functions/dynamic_httpworm.js",
+        "euoom/test/functions/dynamic_isLogEnabled.js",
+        "euoom/test/functions/dynamic_isRunning.js",
+        "euoom/test/functions/dynamic_kill.js",
+        "euoom/test/functions/dynamic_killall.js",
+        "euoom/test/functions/dynamic_ls.js",
+        "euoom/test/functions/dynamic_moveTail.js",
+        "euoom/test/functions/dynamic_mv.js",
+        "euoom/test/functions/dynamic_nFormat.js",
+        "euoom/test/functions/dynamic_nextPortWrite.js",
+        "euoom/test/functions/dynamic_openDevMenu.js",
         "euoom/util/backup.js",
         "euoom/util/run_hackAnalyze.js",
         "euoom/util/run_growthAnalyze.js",

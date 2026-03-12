@@ -16,7 +16,9 @@ export async function main(ns) {
     }
 
     if (isDebug) {
-        ns.tprint("[DEBUG MODE] Hacknet Analyzer started. No purchases will be made.");
+        ns.tprint("[DEBUG MODE] Hacknet Analyzer started. Opening log window...");
+        ns.tail(); // 자동으로 로그 창을 띄웁니다.
+        ns.resizeTail(450, 250); 
     }
 
     while (true) {

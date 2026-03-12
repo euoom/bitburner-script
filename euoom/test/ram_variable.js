@@ -1,27 +1,17 @@
-/** @param {NS} ns */
-export async function main(ns) {
-// 레벨 2: 더 복잡한 우회 시도
-    
-    // 시도 1: 배열에 넣었다가 빼기
-    const list = [ns];
-    const ms1 = list[0];
-    
-    // 시도 2: 함수 인자로 넘겨서 받기
-    function bypass(x) { return x; }
-    const ms2 = bypass(ns);
-    
-    // 시도 3: 객체 속성으로 숨기기
-    const container = { api: ns };
-    const ms3 = container.api;
+    // 레벨 3: 허위 객체 패턴 매칭 테스트
+    // ns와는 아무 상관 없는 일반 객체입니다.
+    const fakeObject = {
+        hacknet: {
+            numNodes: function() { return 999; }
+        }
+    };
 
-    ns.tprint("=== Advanced Variable Aliasing Test ===");
+    ns.tprint("=== Fake Object Pattern Test ===");
     
-    // 아래 중 하나만 살아보고 나머지는 주석처리하며 테스트해볼 수 있습니다.
-    const nodes = ms1.hacknet.numNodes(); 
-    // const nodes = ms2.hacknet.numNodes();
-    // const nodes = ms3.hacknet.numNodes();
+    // 비트버너 API가 아닌 fakeObject를 호출하지만, 가설이 맞다면 4GB가 청구될 것입니다.
+    const val = fakeObject.hacknet.numNodes();
     
-    ns.tprint(`Hacknet Nodes: ${nodes}`);
+    ns.tprint(`Fake Value: ${val}`);
     
     while (true) {
         // Active Scripts에서 이 파일의 할당량을 확인해 봅시다.

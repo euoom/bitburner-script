@@ -1,5 +1,5 @@
 {
-    "version": "1.1.18",
+    "version": "1.1.19",
     "files": [
         "euoom/analyze/full_scan.js",
         "euoom/analyze/crawler.js",
@@ -16,10 +16,8 @@
         "euoom/setup/infiltrate.js",
         "euoom/setup/nuking.js",
         "euoom/test/ls_ns.js",
-        "euoom/test/ram_fat.js",
-        "euoom/test/ram_slim.js",
         "euoom/test/ram_lab.js",
-        "euoom/test/stack_lab.js",
+        "euoom/test/check.js",
         "euoom/test/ns_api_costs.txt",
         "euoom/test/dynamic_tester.js",
         "euoom/util/backup.js",

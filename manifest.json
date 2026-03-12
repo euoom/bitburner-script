@@ -1,5 +1,6 @@
 {
     "files": [
+        "euoom/analyze/full_scan.js",
         "euoom/analyze/growTime.js",
         "euoom/analyze/growth.js",
         "euoom/analyze/network_scan.js",
@@ -9,16 +10,11 @@
         "euoom/hacknet/manager.js",
         "euoom/setup/infiltrate.js",
         "euoom/setup/nuking.js",
-        "euoom/test/ram_cumulative.js",
-        "euoom/test/ram_experimental.js",
         "euoom/test/ram_fat.js",
-        "euoom/test/ram_function.js",
-        "euoom/test/ram_leak.js",
-        "euoom/test/ram_proto.js",
         "euoom/test/ram_slim.js",
-        "euoom/test/ram_variable.js",
         "euoom/util/backup.js",
         "euoom/util/mv_folder.js",
-        "euoom/util/scp.js"
+        "euoom/util/scp.js",
+        "pull.js"
     ]
 }

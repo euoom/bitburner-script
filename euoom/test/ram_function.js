@@ -1,32 +1,36 @@
 /** @param {NS} ns */
 export async function main(ns) {
-    // 1. 할당량 1.6GB 고정 (도전!)
+    // 1. 할당량 1.6GB 고정
     ns.ramOverride(1.6);
     
-    ns.tprint("=== Deep Obfuscation Test (No Strings, Only Keys) ===");
+    ns.tprint("=== Source Laundering Test (Proxy & Closure) ===");
+    
+    // 2. 출처 세탁 로직: 분석기가 ns의 정체를 잊게 만듭니다.
+    const laundry = (function(source) {
+        // Proxy로 한 번 감싸서 객체의 원형을 숨깁니다.
+        const handler = {
+            get: function(target, prop) {
+                return target[prop];
+            }
+        };
+        const p = new Proxy(source, handler);
+        // 클로저를 통해 반환하여 추적 사슬을 복잡하게 만듭니다.
+        return () => p;
+    })(ns);
+
+    // 이제 ms는 분석기 입장에서 '어디선가 온 정체불명의 객체'가 됩니다.
+    const ms = laundry(); 
     
     try {
-        // 2. ns 객체를 직접 건드리지 않고 내부를 탐색합니다.
-        const keys = Object.keys(ns);
+        // 3. 점 표기법(.scp)을 그대로 써봅니다. 
+        // 만약 출처 세탁이 성공했다면, 분석기는 .scp만 보고 4GB를 청구하지 못하거나
+        // 최소한 ms가 ns라는 것을 몰라야 합니다.
+        const res = ms.scp("pull.js", "home", "temp_test.js");
         
-        // 이름이 "s", "c", "p" 문자로만 이루어진 3글자 함수를 찾습니다.
-        // 코드 어디에도 "scp"라는 문자열이 존재하지 않게 합니다.
-        const s = String.fromCharCode(115); // 's'
-        const c = String.fromCharCode(99);  // 'c'
-        const p = String.fromCharCode(112); // 'p'
-        const targetKey = keys.find(k => k.length === 3 && k.includes(s) && k.includes(p));
-        
-        ns.tprint(`[System] Found Hidden Function: ${targetKey}`);
-        
-        // 3. 찾은 함수를 호출합니다.
-        // 만약 이것도 걸린다면, 비트버너 엔진은 '호출되는 순간'의 실제 램 비용을 
-        // 하위 엔진 레벨에서 강제로 합산하고 프로세스를 죽이는 것입니다.
-        const res = ns[targetKey]("pull.js", "home", "temp_test.js");
-        
-        ns.tprint(`Result: ${res}`);
-        ns.tprint(`STATUS: IMPOSSIBLE SUCCESS! You broke the engine.`);
+        ns.tprint(`Laundered Call Result: ${res}`);
+        ns.tprint(`STATUS: SUCCESS! Source laundering worked.`);
     } catch (e) {
-        ns.tprint(`STATUS: DETECTED. The engine is monitoring the actual API entry point.`);
+        ns.tprint(`STATUS: FAILED. Even with a Proxy, the engine sees through the call.`);
         ns.tprint(`Error: ${e.message}`);
     }
     

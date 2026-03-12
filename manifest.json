@@ -18,6 +18,7 @@
         "euoom/lib/save_data_getter.js",
         "euoom/setup/infiltrate.js",
         "euoom/setup/nuking.js",
+        "euoom/test/blackjack_sniff.js",
         "euoom/test/check.js",
         "euoom/test/dynamic_tester.js",
         "euoom/test/ls_ns.js",

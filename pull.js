@@ -41,7 +41,7 @@ export async function main(ns) {
 
         if (total === 0) {
             ns.tprint(`[${host}] ⚠️ No files found in the download list.`);
-            ns.rm("temp_manifest.json");
+            ns.rm("/temp_manifest.json");
             return;
         }
 

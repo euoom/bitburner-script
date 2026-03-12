@@ -1,13 +1,10 @@
 import { syncSaveData, getAllServers, getServerMoneyAvailable, getServerMaxRam, getServerUsedRam, getServerMaxMoney, getServerSecurityLevel, getServerMinSecurityLevel } from "/euoom/lib/save_data_getter.js";
+import { doc } from "/euoom/lib/document.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
     ns.disableLog("sleep");
     
-    // 0GB DOM 획득
-    const g = "".constructor.constructor("return this")();
-    const doc = g["doc" + "ument"];
-
     // 기존 대비 삭제
     let existing = doc.getElementById("euoom-dashboard");
     if (existing) existing.remove();

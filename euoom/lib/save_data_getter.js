@@ -3,14 +3,7 @@
  * 0GB cost API bypass by reading directly from IndexedDB save data.
  */
 
-// 글로벌 스코프 및 IndexedDB 엑세스
-let _g = null;
-function getGlobal() {
-    if (!_g) {
-        _g = "".constructor.constructor("return this")();
-    }
-    return _g;
-}
+import { win } from "/euoom/lib/document.js";
 
 /**
  * 모듈 레벨의 정적 캐시 (동기 접근용)
@@ -32,9 +25,8 @@ export async function syncSaveData(forceRefresh = false) {
         return; 
     }
 
-    const g = getGlobal();
     const saveNodes = await new Promise((resolve, reject) => {
-        const req = g.indexedDB.open("bitburnerSave");
+        const req = win.indexedDB.open("bitburnerSave");
         req.onerror = e => reject("IndexedDB open error: " + e.target.error);
         req.onsuccess = e => {
             const db = e.target.result;
@@ -50,7 +42,7 @@ export async function syncSaveData(forceRefresh = false) {
     if (!saveNodes || saveNodes.length === 0) throw new Error("No save data found");
 
     const bytes = new Uint8Array(Object.values(saveNodes[0]));
-    const ds = new g.DecompressionStream("gzip");
+    const ds = new win.DecompressionStream("gzip");
     const writer = ds.writable.getWriter();
     const reader = ds.readable.getReader();
     
@@ -69,7 +61,7 @@ export async function syncSaveData(forceRefresh = false) {
     let off = 0;
     for (const c of chunks) { merged.set(c, off); off += c.length; }
     
-    const jsonStr = new g.TextDecoder().decode(merged);
+    const jsonStr = new win.TextDecoder().decode(merged);
     const gameState = JSON.parse(jsonStr);
 
     // 내부 맵 갱신

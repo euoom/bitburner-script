@@ -21,16 +21,25 @@ export async function main(ns) {
     }
 
     /** 데이터 저장 및 터미널 출력 함수 */
-    function saveStats(newRecord) {
+    function saveStats(newRecord, avgPayback, nextPayback) {
         if (newRecord) {
             const record = {
                 time: new Date().toLocaleString(),
+                avgPaybackBefore: avgPayback,
+                nextItemPayback: nextPayback,
                 ...newRecord
             };
             history.push(record);
             
-            // 메인 터미널에만 깔끔하게 출력
+            // 효율성 지표 계산 (차이)
+            const diff = nextPayback - avgPayback;
+            const diffText = diff > 0 
+                ? `📈 Efficiency Drop: +${Math.floor(diff/60)}m` 
+                : `📉 Efficiency Gain: ${Math.floor(diff/60)}m`;
+
+            // 메인 터미널 출력 최적화
             ns.tprint(`[${host}] 💸 Purchased: ${newRecord.target} ($${ns.formatNumber(newRecord.cost, 2)})`);
+            ns.tprint(`[${host}] 📊 Avg Payback: ${Math.floor(avgPayback/60)}m -> Next Item: ${Math.floor(nextPayback/60)}m (${diffText})`);
             
             if (history.length > 100) history.shift();
         }
@@ -64,7 +73,7 @@ export async function main(ns) {
 
         if (newNodePayback < minPaybackTime) {
             minPaybackTime = newNodePayback;
-            bestOption = { type: 'node', cost: newNodeCost, text: "New Node" };
+            bestOption = { type: 'node', cost: newNodeCost, prod: newNodeProd, text: "New Node" };
         }
 
         // 2. 기존 노드 업그레이드 검토
@@ -75,21 +84,21 @@ export async function main(ns) {
             const lvlProd = getProdIncrease(stats.level, stats.ram, stats.cores, stats.level + 1, stats.ram, stats.cores);
             if (lvlCost / lvlProd < minPaybackTime) {
                 minPaybackTime = lvlCost / lvlProd;
-                bestOption = { type: 'level', index: i, cost: lvlCost, text: `Node ${i} Level` };
+                bestOption = { type: 'level', index: i, cost: lvlCost, prod: lvlProd, text: `Node ${i} Level` };
             }
 
             const ramCost = ns.hacknet.getRamUpgradeCost(i, 1);
             const ramProd = getProdIncrease(stats.level, stats.ram, stats.cores, stats.level, stats.ram * 2, stats.cores);
             if (ramCost / ramProd < minPaybackTime) {
                 minPaybackTime = ramCost / ramProd;
-                bestOption = { type: 'ram', index: i, cost: ramCost, text: `Node ${i} RAM` };
+                bestOption = { type: 'ram', index: i, cost: ramCost, prod: ramProd, text: `Node ${i} RAM` };
             }
 
             const coreCost = ns.hacknet.getCoreUpgradeCost(i, 1);
             const coreProd = getProdIncrease(stats.level, stats.ram, stats.cores, stats.level, stats.ram, stats.cores + 1);
             if (coreCost / coreProd < minPaybackTime) {
                 minPaybackTime = coreCost / coreProd;
-                bestOption = { type: 'core', index: i, cost: coreCost, text: `Node ${i} Core` };
+                bestOption = { type: 'core', index: i, cost: coreCost, prod: coreProd, text: `Node ${i} Core` };
             }
         }
 
@@ -103,12 +112,21 @@ export async function main(ns) {
                 if (bestOption.type === 'core') success = ns.hacknet.upgradeCore(bestOption.index, 1);
                 
                 if (success) {
+                    // 현재 생산량 합산
+                    let currentTotalProd = 0;
+                    for (let j = 0; j < ns.hacknet.numNodes(); j++) {
+                        currentTotalProd += ns.hacknet.getNodeStats(j).production;
+                    }
+                    
+                    const avgPayback = currentTotalProd > 0 ? (totalInvested / currentTotalProd) : 0;
+                    const nextPayback = bestOption.cost / bestOption.prod;
+
                     totalInvested += bestOption.cost;
                     saveStats({
                         type: bestOption.type,
                         target: bestOption.text,
                         cost: bestOption.cost
-                    });
+                    }, avgPayback, nextPayback);
                 }
             }
         }

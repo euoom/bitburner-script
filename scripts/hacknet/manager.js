@@ -1,10 +1,10 @@
 /** @param {NS} ns */
 export async function main(ns) {
     ns.disableLog('ALL');
-    
+
     // 인자로 --debug가 들어오면 분석만 하고 구매는 하지 않습니다.
     const isDebug = ns.args.includes('--debug');
-    const MAX_PAYBACK_TIME_SECONDS = 3600 * 2; 
+    const MAX_PAYBACK_TIME_SECONDS = 3600 * 2;
 
     /** 수입 증가량 계산 함수 (Hacknet 수입 공식 기반) */
     function getProdIncrease(level, ram, cores, newLevel, newRam, newCores) {
@@ -18,8 +18,7 @@ export async function main(ns) {
     if (isDebug) {
         ns.tprint("[DEBUG MODE] Hacknet Analyzer started. Opening log window...");
         // 최신 API 사용 (Deprecated된 ns.tail 대신)
-        ns.ui.openTail(); 
-        ns.ui.setTailWindowSize(450, 250);
+        ns.ui.openTail();
     }
 
     while (true) {
@@ -34,7 +33,7 @@ export async function main(ns) {
         for (let i = 0; i < numNodes; i++) {
             const stats = ns.hacknet.getNodeStats(i);
             totalProduction += stats.production;
-            
+
             // 누적 투자액 계산 (이전 레벨까지의 비용을 합산하는 방식은 API 제약상 근사치로 계산되거나 기록이 필요함)
             // 여기서는 현재 노드들의 상태를 유지하기 위한 '현재 가치' 비용을 임시로 사용하거나 0으로 둡니다.
             // 실제 정확한 누적액은 스크립트 실행 이후부터 추적하거나 로그를 통해 확인해야 합니다.
@@ -42,9 +41,9 @@ export async function main(ns) {
 
         // 2. 새로운 노드 구입 검토
         const newNodeCost = ns.hacknet.getPurchaseNodeCost();
-        const newNodeProd = getProdIncrease(0, 0, 0, 1, 1, 1); 
+        const newNodeProd = getProdIncrease(0, 0, 0, 1, 1, 1);
         const newNodePayback = newNodeCost / newNodeProd;
-        
+
         if (newNodePayback < minPaybackTime) {
             minPaybackTime = newNodePayback;
             bestOption = { type: 'node', cost: newNodeCost, text: "Purchase New Node" };
@@ -82,15 +81,15 @@ export async function main(ns) {
         ns.clearLog();
         const host = ns.getHostname();
         ns.print(`[${host}] --- Hacknet ROI Analyzer ---`);
-        ns.print(`Nodes: ${numNodes} | Total Income: $${ns.nFormat(totalProduction, "0.00a")}/s`);
+        ns.print(`Nodes: ${numNodes} | Total Income: $${ns.formatNumber(totalProduction, 2)}/s`);
         if (isDebug) ns.print(`⚠️ DEBUG MODE: Analysis Only`);
         ns.print(`------------------------------------`);
 
         if (bestOption) {
             const timeLeft = Math.floor(minPaybackTime);
             ns.print(`Next Best: ${bestOption.text}`);
-            ns.print(`Cost: $${ns.nFormat(bestOption.cost, "0.00a")}`);
-            
+            ns.print(`Cost: $${ns.formatNumber(bestOption.cost, 2)}`);
+
             if (minPaybackTime === Infinity || isNaN(minPaybackTime)) {
                 ns.print(`Payback: N/A (Calculating...)`);
             } else {
@@ -110,13 +109,13 @@ export async function main(ns) {
                     }
                 } else {
                     const need = bestOption.cost - ns.getServerMoneyAvailable("home");
-                    ns.print(`⏳ Need $${ns.nFormat(need, "0.00a")} more...`);
+                    ns.print(`⏳ Need $${ns.formatNumber(need, 2)} more...`);
                 }
             } else {
                 ns.print(`✅ Status: Reached Optimal ROI`);
             }
         }
 
-        await ns.sleep(isDebug ? 2000 : 1000); 
+        await ns.sleep(isDebug ? 2000 : 1000);
     }
 }

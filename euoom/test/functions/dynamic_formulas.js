@@ -3,8 +3,12 @@ export async function main(ns) {
     ns.ramOverride(1.6);
     try {
         const form = ns["formulas"];
-        // 속성 접근만으로도 램 체크가 발생하는지 확인
-        if (form) ns.print("Formulas access success");
+        // 단순히 속성 접근만 하지 않고, 실제 함수를 호출하여 램 소모를 유발함.
+        if (form) {
+            const player = ns.getPlayer();
+            const server = ns.getServer("foodnstuff");
+            form.hacking.hackChance(server, player);
+        }
     } catch (e) {}
     while (true) await ns.sleep(1000);
 }

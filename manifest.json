@@ -9,10 +9,10 @@
         "euoom/hacknet/manager.js",
         "euoom/setup/infiltrate.js",
         "euoom/setup/nuking.js",
+        "euoom/test/ram_fat.js",
+        "euoom/test/ram_slim.js",
         "euoom/util/backup.js",
         "euoom/util/mv_folder.js",
-        "euoom/util/scp.js",
-        "euoom/util/test_ram_fat.js",
-        "euoom/util/test_ram_slim.js"
+        "euoom/util/scp.js"
     ]
 }

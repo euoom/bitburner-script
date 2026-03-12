@@ -24,75 +24,98 @@ export async function main(ns) {
     while (true) {
         let bestOption = null;
         let minPaybackTime = Infinity;
+        let totalInvested = 0;
+        let totalProduction = 0;
 
-        // 1. 새로운 노드 구입 검토
+        const numNodes = ns.hacknet.numNodes();
+
+        // 1. 현재 네트워크 전체 상태 분석
+        for (let i = 0; i < numNodes; i++) {
+            const stats = ns.hacknet.getNodeStats(i);
+            totalProduction += stats.production;
+            
+            // 누적 투자액 계산 (이전 레벨까지의 비용을 합산하는 방식은 API 제약상 근사치로 계산되거나 기록이 필요함)
+            // 여기서는 현재 노드들의 상태를 유지하기 위한 '현재 가치' 비용을 임시로 사용하거나 0으로 둡니다.
+            // 실제 정확한 누적액은 스크립트 실행 이후부터 추적하거나 로그를 통해 확인해야 합니다.
+        }
+
+        // 2. 새로운 노드 구입 검토
         const newNodeCost = ns.hacknet.getPurchaseNodeCost();
         const newNodeProd = getProdIncrease(0, 0, 0, 1, 1, 1); 
         const newNodePayback = newNodeCost / newNodeProd;
         
         if (newNodePayback < minPaybackTime) {
             minPaybackTime = newNodePayback;
-            bestOption = { type: 'node', cost: newNodeCost, text: "New Node" };
+            bestOption = { type: 'node', cost: newNodeCost, text: "Purchase New Node" };
         }
 
-        // 2. 기존 노드 업그레이드 검토
-        const numNodes = ns.hacknet.numNodes();
-        for (let i = 0; i < numNodes; i++) {
-            const stats = ns.hacknet.getNodeStats(i);
+        // 3. 기존 노드 업그레이드 검토 (노드가 있을 때만)
+        if (numNodes > 0) {
+            for (let i = 0; i < numNodes; i++) {
+                const stats = ns.hacknet.getNodeStats(i);
 
-            const lvlCost = ns.hacknet.getLevelUpgradeCost(i, 1);
-            const lvlProd = getProdIncrease(stats.level, stats.ram, stats.cores, stats.level + 1, stats.ram, stats.cores);
-            if (lvlCost / lvlProd < minPaybackTime) {
-                minPaybackTime = lvlCost / lvlProd;
-                bestOption = { type: 'level', index: i, cost: lvlCost, text: `Node ${i} Level` };
-            }
+                const lvlCost = ns.hacknet.getLevelUpgradeCost(i, 1);
+                const lvlProd = getProdIncrease(stats.level, stats.ram, stats.cores, stats.level + 1, stats.ram, stats.cores);
+                if (lvlCost / lvlProd < minPaybackTime) {
+                    minPaybackTime = lvlCost / lvlProd;
+                    bestOption = { type: 'level', index: i, cost: lvlCost, text: `Node ${i} Level` };
+                }
 
-            const ramCost = ns.hacknet.getRamUpgradeCost(i, 1);
-            const ramProd = getProdIncrease(stats.level, stats.ram, stats.cores, stats.level, stats.ram * 2, stats.cores);
-            if (ramCost / ramProd < minPaybackTime) {
-                minPaybackTime = ramCost / ramProd;
-                bestOption = { type: 'ram', index: i, cost: ramCost, text: `Node ${i} RAM` };
-            }
+                const ramCost = ns.hacknet.getRamUpgradeCost(i, 1);
+                const ramProd = getProdIncrease(stats.level, stats.ram, stats.cores, stats.level, stats.ram * 2, stats.cores);
+                if (ramCost / ramProd < minPaybackTime) {
+                    minPaybackTime = ramCost / ramProd;
+                    bestOption = { type: 'ram', index: i, cost: ramCost, text: `Node ${i} RAM` };
+                }
 
-            const coreCost = ns.hacknet.getCoreUpgradeCost(i, 1);
-            const coreProd = getProdIncrease(stats.level, stats.ram, stats.cores, stats.level, stats.ram, stats.cores + 1);
-            if (coreCost / coreProd < minPaybackTime) {
-                minPaybackTime = coreCost / coreProd;
-                bestOption = { type: 'core', index: i, cost: coreCost, text: `Node ${i} Core` };
+                const coreCost = ns.hacknet.getCoreUpgradeCost(i, 1);
+                const coreProd = getProdIncrease(stats.level, stats.ram, stats.cores, stats.level, stats.ram, stats.cores + 1);
+                if (coreCost / coreProd < minPaybackTime) {
+                    minPaybackTime = coreCost / coreProd;
+                    bestOption = { type: 'core', index: i, cost: coreCost, text: `Node ${i} Core` };
+                }
             }
         }
 
-        // 3. 최적의 옵션 보고 및 실행
+        // 4. 최적의 옵션 보고 및 실행
         ns.clearLog();
         const host = ns.getHostname();
-        ns.print(`[${host}] --- Hacknet Investment Analyzer ---`);
+        ns.print(`[${host}] --- Hacknet ROI Analyzer ---`);
+        ns.print(`Nodes: ${numNodes} | Total Income: $${ns.nFormat(totalProduction, "0.00a")}/s`);
         if (isDebug) ns.print(`⚠️ DEBUG MODE: Analysis Only`);
+        ns.print(`------------------------------------`);
 
         if (bestOption) {
             const timeLeft = Math.floor(minPaybackTime);
             ns.print(`Next Best: ${bestOption.text}`);
-            ns.print(`Cost: $${bestOption.cost.toLocaleString()}`);
-            ns.print(`Payback: ${Math.floor(timeLeft / 60)}m ${timeLeft % 60}s`);
+            ns.print(`Cost: $${ns.nFormat(bestOption.cost, "0.00a")}`);
+            
+            if (minPaybackTime === Infinity || isNaN(minPaybackTime)) {
+                ns.print(`Payback: N/A (Calculating...)`);
+            } else {
+                ns.print(`Payback: ${Math.floor(timeLeft / 60)}m ${timeLeft % 60}s`);
+            }
 
-            if (minPaybackTime < MAX_PAYBACK_TIME_SECONDS) {
+            if (minPaybackTime < MAX_PAYBACK_TIME_SECONDS || numNodes === 0) {
                 if (ns.getServerMoneyAvailable("home") >= bestOption.cost) {
                     if (!isDebug) {
-                        ns.print(`💰 Purchasing upgrade...`);
+                        ns.print(`💰 Action: Purchasing...`);
                         if (bestOption.type === 'node') ns.hacknet.purchaseNode();
                         if (bestOption.type === 'level') ns.hacknet.upgradeLevel(bestOption.index, 1);
                         if (bestOption.type === 'ram') ns.hacknet.upgradeRam(bestOption.index, 1);
                         if (bestOption.type === 'core') ns.hacknet.upgradeCore(bestOption.index, 1);
                     } else {
-                        ns.print(`ℹ️ [DEBUG] Afford check passed, but skipping purchase.`);
+                        ns.print(`ℹ️ [DEBUG] Afforded! Purchase skipped.`);
                     }
                 } else {
-                    ns.print(`⏳ Waiting for money...`);
+                    const need = bestOption.cost - ns.getServerMoneyAvailable("home");
+                    ns.print(`⏳ Need $${ns.nFormat(need, "0.00a")} more...`);
                 }
             } else {
-                ns.print(`✅ Optimal for now (Payback > 2h)`);
+                ns.print(`✅ Status: Reached Optimal ROI`);
             }
         }
 
-        await ns.sleep(isDebug ? 5000 : 1000); // 디버그 모드일 때는 5초마다 갱신
+        await ns.sleep(isDebug ? 2000 : 1000); 
     }
 }

@@ -4,8 +4,11 @@
  * 램 효율을 위해 동적 프로퍼티 접근(ns["hacknet"]) 방식을 사용합니다.
  */
 
+export const getHN = (ns) => ns["hacknet"];
+
 function getProdIncrease(ns, level, ram, cores, newLevel, newRam, newCores) {
-    const mult = ns["hacknet"]["getHacknetMultipliers"]().production;
+    const hn = getHN(ns);
+    const mult = hn["getHacknetMultipliers"]().production;
     const currentProd = level * 1.5 * Math.pow(1.035, ram - 1) * ((cores + 5) / 6) * mult;
     const nextProd = newLevel * 1.5 * Math.pow(1.035, newRam - 1) * ((newCores + 5) / 6) * mult;
     return nextProd - currentProd;
@@ -18,7 +21,7 @@ function getProdIncrease(ns, level, ram, cores, newLevel, newRam, newCores) {
  * @param {Object} config - 설정 객체 { maxPayback, logFile, quiet }
  */
 export function tickHacknet(ns, state, config = {}) {
-    const hn = ns["hacknet"];
+    const hn = getHN(ns);
     const quiet = config.quiet || false;
     const logFile = config.logFile || "/euoom/hacknet/hacknet.txt";
 

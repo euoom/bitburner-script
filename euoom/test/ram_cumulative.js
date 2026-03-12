@@ -12,7 +12,8 @@ export async function main(ns) {
     try {
         // Step 1: scp (0.6) -> 계: 2.2
         ns[tprintFn]("[Step 1] Calling scp (0.6GB)...");
-        const res1 = ns["scp"]("pull.js", "home", "temp_cum_test.js");
+        // scp(파일, 목적지, 출발지) - 자가 복사 시도
+        const res1 = ns["scp"]("pull.js", "home", "home");
         ns[tprintFn](` -> Step 1 Success! (Return: ${res1})`);
 
         // Step 2: scan (0.2) -> 계: 2.4 (누적제라면 아슬아슬하게 생존)

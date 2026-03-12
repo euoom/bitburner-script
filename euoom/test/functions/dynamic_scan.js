@@ -1,5 +1,7 @@
 /** @param {NS} ns */
 export async function main(ns) {
     ns.ramOverride(1.6);
-    ns["scan"]("home");
+    try {
+        ns["scan"]("home");
+    } catch (e) {}
 }

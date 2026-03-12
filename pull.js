@@ -9,7 +9,8 @@ export async function main(ns) {
     const branch = ns.args[2] || defaultBranch;
 
     const baseUrl = `https://raw.githubusercontent.com/${user}/${repo}/${branch}/`;
-    const manifestUrl = `${baseUrl}manifest.json`;
+    // GitHub 캐시 이슈를 방지하기 위한 타임스탬프 추가
+    const manifestUrl = `${baseUrl}manifest.json?t=${new Date().getTime()}`;
 
     const host = ns.getHostname();
 
@@ -46,7 +47,8 @@ export async function main(ns) {
             // tqdm 스타일의 진행률 표시
             ns.tprint(`[${host}] [${bar}] ${percent}% | ${i + 1}/${total} | Syncing: ${file}`);
             
-            const success = await ns.wget(`${baseUrl}${file}`, file);
+            const fileUrl = `${baseUrl}${file}?t=${new Date().getTime()}`;
+            const success = await ns.wget(fileUrl, file);
             if (!success) {
                 ns.tprint(`[${host}]   ❌ Failed to download ${file}.`);
             }

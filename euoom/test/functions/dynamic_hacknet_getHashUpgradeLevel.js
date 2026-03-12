@@ -1,6 +1,7 @@
+import { getHN } from "/euoom/lib/hacknet.js";
 /** @param {NS} ns */
 export async function main(ns) {
     ns.ramOverride(1.6);
-    try { ns["hacknet"]["getHashUpgradeLevel"]("Sell for Money"); } catch (e) {}
+    try { getHN(ns)["getHashUpgradeLevel"]("Sell for Money"); } catch (e) {}
     while (true) await ns.sleep(1000);
 }

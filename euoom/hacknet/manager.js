@@ -118,7 +118,7 @@ export async function main(ns) {
                         currentTotalProd += ns.hacknet.getNodeStats(j).production;
                     }
                     
-                    const avgPayback = currentTotalProd > 0 ? (totalInvested / currentTotalProd) : 0;
+                    const avgPayback = (currentTotalProd > 0 && totalInvested > 0) ? (totalInvested / currentTotalProd) : 4294967295;
                     const nextPayback = bestOption.cost / bestOption.prod;
 
                     totalInvested += bestOption.cost;

@@ -1,10 +1,11 @@
 /** @param {NS} ns */
+/** @ramOverride 1.6 */
 export async function main(ns) {
     const dbPath = "/euoom/analyze/db.json";
     const anaPath = "/euoom/analyze/analysis.json";
-    if (!ns.fileExists(dbPath)) return ns.tprint("[Error] db.json not found!");
+    if (!ns["fileExists"](dbPath)) return ns["tprint"]("[Error] db.json not found!");
 
-    const dataPack = JSON.parse(ns.read(dbPath));
+    const dataPack = JSON.parse(ns["read"](dbPath));
     const { rawDB, marketData } = dataPack;
     
     const targets = {};
@@ -21,10 +22,8 @@ export async function main(ns) {
             // HGW Ratios (Weaken-Anchored)
             const targetPct = 0.01;
             const tH_raw = targetPct / Math.max(data.hPct, 0.000001);
-            // Growth estimation (Approximated math since growthAnalyze is heavy)
-            // Growth = 1/(1 - hackAmount)
+            // Growth estimation
             const growthReq = 1 / (1 - (tH_raw * data.hPct));
-            // rough growth threads estimate to avoid re-calling API
             const tG_raw = Math.log(growthReq) / Math.log(Math.pow(2, 1/Math.max(data.gThreads2x, 1)));
             const tW_raw = (tH_raw * 0.002 + tG_raw * 0.004) / data.wAmt;
             
@@ -66,9 +65,7 @@ export async function main(ns) {
     // Market Analysis (ROI)
     const ramPricePerGB = marketData.ramPrice8GB / 8;
     const hackingROI = maxEfficiency / ramPricePerGB;
-    
-    // Hacknet ROI Sample (using stats from db.json if available, or base)
-    const bestHnROI = 1.5 / 1215000; // Placeholder ROI based on base Node cost
+    const bestHnROI = 1.5 / 1215000;
 
     const summary = {
         maxHackingEfficiency: maxEfficiency,
@@ -78,6 +75,6 @@ export async function main(ns) {
         recommendation: bestHnROI > hackingROI ? "INVEST_HACKNET" : "INVEST_RAM_FOR_HACKING"
     };
 
-    ns.write(anaPath, JSON.stringify({ summary, targets, others }, null, 4), "w");
-    ns.tprint("[Refiner] Logic processing complete. analysis.json updated.");
+    ns["write"](anaPath, JSON.stringify({ summary, targets, others }, null, 4), "w");
+    ns["tprint"]("[Refiner] Logic processing complete. analysis.json updated.");
 }

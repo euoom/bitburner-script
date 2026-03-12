@@ -1,6 +1,7 @@
 /** @param {NS} ns */
+/** @ramOverride 2.7 */
 export async function main(ns) {
-    ns.tprint("[Enricher] Starting atomic worker chain...");
+    ns["tprint"]("[Enricher] Starting atomic worker chain...");
 
     const workers = [
         "/euoom/util/run_hackAnalyze.js",
@@ -10,14 +11,14 @@ export async function main(ns) {
     ];
 
     for (const worker of workers) {
-        ns.print(`Running ${worker}...`);
-        let pid = ns.run(worker);
+        ns["print"](`Running ${worker}...`);
+        let pid = ns["run"](worker);
         if (pid === 0) {
-            ns.tprint(`[Error] Failed to run ${worker}. Check RAM.`);
+            ns["tprint"](`[Error] Failed to run ${worker}. Check RAM.`);
             continue;
         }
-        while (ns.isRunning(pid)) await ns.sleep(50);
+        while (ns["isRunning"](pid)) await ns["sleep"](50);
     }
 
-    ns.tprint("[Enricher] All atomic workers finished. db.json is ready.");
+    ns["tprint"]("[Enricher] All atomic workers finished. db.json is ready.");
 }

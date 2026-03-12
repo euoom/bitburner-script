@@ -12,7 +12,7 @@
         "euoom/deploy/deploy.js",
         "euoom/hack/engine.js",
         "euoom/hacknet/manager.js",
-        "euoom/lib/doc_dashboard.js",
+        "euoom/lib/dashboard.js",
         "euoom/lib/document.js",
         "euoom/lib/hacknet.js",
         "euoom/lib/save_data_getter.js",

@@ -1,5 +1,5 @@
 {
-    "version": "1.0.9",
+    "version": "1.1.0",
     "files": [
         "euoom/analyze/full_scan.js",
         "euoom/analyze/crawler.js",
@@ -15,6 +15,7 @@
         "euoom/lib/hacknet.js",
         "euoom/setup/infiltrate.js",
         "euoom/setup/nuking.js",
+        "euoom/test/ls_ns.js",
         "euoom/test/ram_fat.js",
         "euoom/test/ram_slim.js",
         "euoom/test/ram_lab.js",

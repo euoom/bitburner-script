@@ -1,8 +1,8 @@
 /** @param {NS} ns */
 export async function main(ns) {
-    const defaultUser = "your-github-username";
-    const defaultRepo = "your-bitburner-repo";
-    const defaultBranch = "main";
+    const defaultUser = "euoom";
+    const defaultRepo = "bitburner-script";
+    const defaultBranch = "master";
 
     const user = ns.args[0] || defaultUser;
     const repo = ns.args[1] || defaultRepo;

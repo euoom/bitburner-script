@@ -37,7 +37,17 @@ function generateManifest() {
             scripts.unshift('pull.js');
         }
 
+        // 기존 버전 정보 읽기
+        let version = "1.0.0";
+        if (fs.existsSync(outputFile)) {
+            try {
+                const oldManifest = JSON.parse(fs.readFileSync(outputFile, 'utf8'));
+                if (oldManifest.version) version = oldManifest.version;
+            } catch (e) {}
+        }
+
         const manifest = {
+            version: version,
             files: scripts
         };
 

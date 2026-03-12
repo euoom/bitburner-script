@@ -2,7 +2,7 @@
 export async function main(ns) {
     const defaultUser = "euoom";
     const defaultRepo = "bitburner-script";
-    const defaultBranch = "master";
+    const defaultBranch = "main";
 
     // 인자 분석
     const args = ns.args;

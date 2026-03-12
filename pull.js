@@ -25,21 +25,28 @@ export async function main(ns) {
 
         const manifestContent = JSON.parse(ns.read("temp_manifest.json"));
         const files = manifestContent.files || [];
+        const total = files.length;
 
-        if (files.length === 0) {
+        if (total === 0) {
             ns.tprint(`⚠️ No files found in manifest.json`);
             return;
         }
 
-        ns.tprint(`Found ${files.length} files to download.`);
+        ns.tprint(`Found ${total} files to download.`);
 
-        for (const file of files) {
-            ns.tprint(`📥 Downloading ${file}...`);
+        for (let i = 0; i < total; i++) {
+            const file = files[i];
+            const percent = Math.round(((i + 1) / total) * 100);
+            const barWidth = 20;
+            const progress = Math.round((barWidth * (i + 1)) / total);
+            const bar = "█".repeat(progress) + "-".repeat(barWidth - progress);
+            
+            // tqdm 스타일의 진행률 표시
+            ns.tprint(`[${bar}] ${percent}% | ${i + 1}/${total} | Syncing: ${file}`);
+            
             const success = await ns.wget(`${baseUrl}${file}`, file);
-            if (success) {
-                ns.tprint(`✅ ${file} downloaded successfully.`);
-            } else {
-                ns.tprint(`❌ Failed to download ${file}.`);
+            if (!success) {
+                ns.tprint(`   ❌ Failed to download ${file}.`);
             }
         }
 

@@ -70,19 +70,19 @@ export async function main(ns) {
             const gThreads2x = ns.growthAnalyze(current, 2);
             const gPower = (Math.pow(2, 1 / Math.max(gThreads2x, 1)) - 1);
 
-            // [HGW Minimum Integer Ratio Analysis] - 가장 작은 단위를 1로 맞춘 정수 비율
+            // [HGW Weaken-Anchored Ratio Analysis] - 위큰 1개를 기준으로 한 상대적 정수 비율
             const targetPct = 0.01; 
             const tH_raw = targetPct / Math.max(hPercent, 0.000001);
             const tG_raw = ns.growthAnalyze(current, 1 / (1 - (tH_raw * hPercent)));
             const tW_raw = (tH_raw * 0.002 + tG_raw * 0.004) / wAmount;
             
-            // 비율 정규화: 최솟값을 찾아 전체를 나눔 (0 제외)
-            const minT = Math.min(tH_raw, tG_raw > 0 ? tG_raw : 999, tW_raw > 0 ? tW_raw : 999);
-            const rH = Math.max(Math.floor(tH_raw / minT), 1);
-            const rG = Math.max(Math.ceil(tG_raw / minT), 1);
-            const rW = Math.max(Math.ceil(tW_raw / minT), 1);
+            // 위큰(tW_raw)을 1로 기준 잡고 정규화
+            const anchor = tW_raw;
+            const rH = Math.max(Math.floor(tH_raw / anchor), 1);
+            const rG = Math.max(Math.ceil(tG_raw / anchor), 1);
+            const rW = 1; // 위큰은 항상 1로 고정
             
-            // [Batch Performance Analysis] - 최소 단위 유닛 성능 측정
+            // [Batch Performance Analysis] - 위큰 1개 기준 유닛 성능 측정
             const batchMoney = (rH * hPercent) * mMoney;
             const batchRam = (rH * 1.70) + (rG * 1.75) + (rW * 1.75);
             const efficiency = batchMoney / (batchRam * wTimeSec);
@@ -104,7 +104,7 @@ export async function main(ns) {
                 // [Security Speed]
                 weakenSpeed: wAmount / wTimeSec,
                 
-                // [Batch Ratios] - Smallest Integer Ratio (e.g., 10:2:1)
+                // [Batch Ratios] - Weaken-Anchored Unit (Fixed W:1)
                 ratioH: rH,
                 ratioG: rG,
                 ratioW: rW,

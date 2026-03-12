@@ -1,21 +1,22 @@
 /** @param {NS} ns */
 export async function main(ns) {
-    // 타겟: getScriptRam (0.1GB)
-    // ns와 아무 상관 없는 가짜 객체에 이 이름을 붙여봅니다.
+    // 타겟: scp (0.60GB - 덩치가 커서 구분이 확실함)
     const fake = {
-        getScriptRam: function() { return 0; }
+        scp: function() { return false; }
     };
 
-    ns.tprint("=== Function Pattern Test ===");
+    ns.tprint("=== Heavy Function Pattern Test (scp: 0.6GB) ===");
     
-    // 이 구문이 램을 0.1GB 높여서 1.7GB로 만든다면, 함수도 텍스트 패턴 매칭입니다.
-    const res = fake.getScriptRam();
+    // 가짜 scp 호출. 가설이 맞다면 0.6GB가 추가로 청구됨.
+    const res = fake.scp();
     
-    // 트릭으로 호출하여 현재 스크립트의 할당량을 출력합니다.
-    const actualRam = ns["getScriptRam"](ns.getScriptName());
+    // 측정도 트릭으로 수행 (측정 함수 자체의 0.1GB 청구를 피함)
+    const getRamFn = "getScriptRam";
+    const actualRam = ns[getRamFn](ns.getScriptName());
     
-    ns.tprint(`Fake Object Call Result: ${res}`);
+    ns.tprint(`Fake scp Call Result: ${res}`);
     ns.tprint(`[SYSTEM] Current Script RAM Cost: ${actualRam.toFixed(2)} GB`);
+    ns.tprint(`(Expected 1.60 if logic-based, 2.20 if pattern-based)`);
     
     while (true) {
         await ns.sleep(1000);

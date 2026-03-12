@@ -2,6 +2,9 @@
 export async function main(ns) {
     const tests = [
         { name: "Hack Pct", path: "/euoom/test/functions/dynamic_hack.js", staticRam: 1.0 },
+        { name: "Growth Ana", path: "/euoom/test/functions/dynamic_growthAnalyze.js", staticRam: 1.0 },
+        { name: "Weaken Ana", path: "/euoom/test/functions/dynamic_weakenAnalyze.js", staticRam: 1.0 },
+        { name: "Get Server", path: "/euoom/test/functions/dynamic_getServer.js", staticRam: 2.0 },
         { name: "Network Scan", path: "/euoom/test/functions/dynamic_scan.js", staticRam: 0.2 },
         { name: "Hacknet API", path: "/euoom/test/functions/dynamic_hacknet.js", staticRam: 4.0 }
     ];

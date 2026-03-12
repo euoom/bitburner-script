@@ -6,4 +6,5 @@ export async function main(ns) {
     } catch (e) {
         // 엔진 로그 억제 시도
     }
+    while (true) await ns.sleep(1000);
 }

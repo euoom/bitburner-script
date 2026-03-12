@@ -7,4 +7,5 @@ export async function main(ns) {
         const hn = getHN(ns);
         hn["numNodes"]();
     } catch (e) {}
+    while (true) await ns.sleep(1000);
 }

@@ -4,4 +4,5 @@ export async function main(ns) {
     try {
         ns["scan"]("home");
     } catch (e) {}
+    while (true) await ns.sleep(1000);
 }

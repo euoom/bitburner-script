@@ -26,13 +26,20 @@ export async function main(ns) {
         if (current !== "home") {
             try {
                 networkDB[current] = {
+                    // [Infrastructure]
                     hostname: current,
-                    maxMoney: ns.getServerMaxMoney(current),
-                    minSecurity: ns.getServerMinSecurityLevel(current),
-                    growth: ns.getServerGrowth(current),
-                    requiredHacking: ns.getServerRequiredHackingLevel(current),
-                    numPortsRequired: ns.getServerNumPortsRequired(current),
                     maxRam: ns.getServerMaxRam(current),
+                    numPortsRequired: ns.getServerNumPortsRequired(current),
+                    
+                    // [Hacking]
+                    maxMoney: ns.getServerMaxMoney(current),
+                    requiredHacking: ns.getServerRequiredHackingLevel(current),
+                    
+                    // [Growth]
+                    growth: ns.getServerGrowth(current),
+                    
+                    // [Security]
+                    minSecurity: ns.getServerMinSecurityLevel(current),
                     baseSecurity: ns.getServerBaseSecurityLevel(current)
                 };
             } catch (e) {

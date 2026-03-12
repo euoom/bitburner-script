@@ -1,4 +1,4 @@
-import { getServer } from "euoom/lib/saveReader.js";
+import { syncSaveData, getServerMoneyAvailable, getServerMaxRam, getServerUsedRam } from "/euoom/lib/saveReader.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
@@ -64,7 +64,6 @@ export async function main(ns) {
     let offsetX = 0, offsetY = 0;
     let isRunning = true;
 
-    // 드래그 시작
     header.addEventListener("mousedown", (e) => {
         isDragging = true;
         header.style.cursor = "grabbing";
@@ -72,7 +71,6 @@ export async function main(ns) {
         offsetY = e.clientY - dash.getBoundingClientRect().top;
     });
 
-    // 드래그 중
     doc.addEventListener("mousemove", (e) => {
         if (!isDragging) return;
         dash.style.right = 'auto'; 
@@ -81,13 +79,11 @@ export async function main(ns) {
         dash.style.top = (e.clientY - offsetY) + "px";
     });
 
-    // 드래그 종료
     doc.addEventListener("mouseup", () => {
         isDragging = false;
         header.style.cursor = "grab";
     });
 
-    // X 버튼 클릭
     closeBtn.addEventListener("click", () => {
         dash.remove();
         isRunning = false; 
@@ -105,13 +101,13 @@ export async function main(ns) {
     const startTime = Date.now();
     while (isRunning) {
         try {
-            // saveReader.js 에서 0GB로 홈 서버 데이터 가져오기!!
-            const home = await getServer(ns, "home");
+            // 주기적으로 데이터 비동기 동기화 수행
+            await syncSaveData();
             
-            // 세이브 데이터 내의 필드 (비트버너 실제 Server 객체의 속성 이름들)
-            const money = ns.formatNumber(home.moneyAvailable);
-            const maxRam = home.maxRam;
-            const usedRam = home.ramUsed || 0; // save 데이터에 ramUsed 로 들어있음
+            // 데이터는 완전 동기식으로 조회 가능
+            const money = ns.formatNumber(getServerMoneyAvailable("home"));
+            const maxRam = getServerMaxRam("home");
+            const usedRam = getServerUsedRam("home");
             const ramUsedPct = maxRam > 0 ? (usedRam / maxRam * 100).toFixed(1) : 0;
             const uptime = Math.floor((Date.now() - startTime) / 1000);
 
@@ -120,14 +116,12 @@ export async function main(ns) {
                 <div><b>Money:</b> $${money}</div>
                 <div><b>RAM:</b> ${usedRam.toFixed(1)}GB / ${maxRam}GB (${ramUsedPct}%)</div>
                 <div style="margin-top: 10px; color: #888;">Uptime: ${uptime}s</div>
-                <div style="margin-top: 5px; font-size: 0.8em; color: #aaa;">Data source: IndexedDB (autosave)</div>
+                <div style="margin-top: 5px; font-size: 0.8em; color: #aaa;">Data source: IndexedDB (auto-synced)</div>
             `;
         } catch(e) {
-            // 엔진 에러 시 안전하게 종료
             contentDiv.innerHTML = `Data read error: ${e}`;
         }
         
-        // 30초 단위 갱신 (오토세이브 주기에 맞춤)
-        await ns.sleep(30000);
+        await ns.sleep(30000); // 30초 대기
     }
 }

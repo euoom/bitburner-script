@@ -1,11 +1,14 @@
 /** @param {NS} ns */
 export async function main(ns) {
     const tests = [
-        // --- [Level 1: Basic & Analysis (0.1GB ~ 1.0GB)] ---
-        { name: "Scan", path: "/euoom/test/functions/dynamic_scan.js", staticRam: 0.2 },
+        // --- [Level 1: Daily Hacking Suite (0.1GB ~ 1.0GB)] ---
         { name: "Hack Analyze", path: "/euoom/test/functions/dynamic_hack.js", staticRam: 1.0 },
+        { name: "Hack Suite", path: "/euoom/test/functions/dynamic_hackSuite.js", staticRam: 0.3 }, // Chance, Security, Threads
         { name: "Growth Ana", path: "/euoom/test/functions/dynamic_growthAnalyze.js", staticRam: 1.0 },
         { name: "Weaken Ana", path: "/euoom/test/functions/dynamic_weakenAnalyze.js", staticRam: 1.0 },
+        { name: "Server Stats", path: "/euoom/test/functions/dynamic_serverStats.js", staticRam: 0.4 }, // Sec, Money, MaxRam, UsedRam
+        { name: "Time Stats", path: "/euoom/test/functions/dynamic_timeStats.js", staticRam: 0.15 }, // H, G, W Time
+        { name: "Scan", path: "/euoom/test/functions/dynamic_scan.js", staticRam: 0.2 },
         { name: "File Exists", path: "/euoom/test/functions/dynamic_fileExists.js", staticRam: 0.1 },
 
         // --- [Level 2: Heavy Server & Player (2.0GB ~ 4.0GB)] ---

@@ -1,6 +1,6 @@
 /** @param {NS} ns */
-/** @ramOverride 2.6 */
 export async function main(ns) {
+    ns.ramOverride(2.6);
     const dbPath = "/euoom/analyze/db.json";
     if (!ns.fileExists(dbPath)) return;
     const db = JSON.parse(ns.read(dbPath));

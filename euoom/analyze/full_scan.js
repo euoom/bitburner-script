@@ -1,8 +1,8 @@
 import { getHN } from "/euoom/lib/hacknet.js";
 
 /** @param {NS} ns */
-/** @ramOverride 2.7 */
 export async function main(ns) {
+    ns.ramOverride(2.7);
     ns.tprint("🚀 Starting Distributed Network Analysis...");
 
     // 1. Crawler (Network Discovery)

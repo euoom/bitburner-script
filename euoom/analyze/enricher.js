@@ -1,6 +1,6 @@
 /** @param {NS} ns */
-/** @ramOverride 2.7 */
 export async function main(ns) {
+    ns.ramOverride(2.7);
     ns.tprint("[Enricher] Starting atomic worker chain...");
 
     const workers = [

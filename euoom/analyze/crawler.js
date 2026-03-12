@@ -1,6 +1,6 @@
 /** @param {NS} ns */
-/** @ramOverride 2.2 */
 export async function main(ns) {
+    ns.ramOverride(2.2);
     const rawDB = {};
     const visited = new Set();
     const queue = ["home"];

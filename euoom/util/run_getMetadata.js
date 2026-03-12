@@ -1,8 +1,8 @@
 import { getHN } from "/euoom/lib/hacknet.js";
 
 /** @param {NS} ns */
-/** @ramOverride 2.1 */
 export async function main(ns) {
+    ns.ramOverride(2.1);
     const hn = getHN(ns);
     const dbPath = "/euoom/analyze/db.json";
     if (!ns.fileExists(dbPath)) return;

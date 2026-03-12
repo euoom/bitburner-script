@@ -1,6 +1,6 @@
 /** @param {NS} ns */
-/** @ramOverride 1.6 */
 export async function main(ns) {
+    ns.ramOverride(1.6);
     const dbPath = "/euoom/analyze/db.json";
     const anaPath = "/euoom/analyze/analysis.json";
     if (!ns.fileExists(dbPath)) return ns.tprint("[Error] db.json not found!");

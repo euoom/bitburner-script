@@ -37,6 +37,7 @@ export async function main(ns) {
         const content = ns.read("/manifest.json");
         const manifestContent = JSON.parse(content);
         const files = manifestContent.files || [];
+        const version = manifestContent.version || "legacy";
         const total = files.length;
 
         if (total === 0) {
@@ -44,7 +45,9 @@ export async function main(ns) {
             return;
         }
 
-        ns.tprint(`[${host}] Found ${total} files. Starting synchronization...`);
+        // 버전 정보를 쿼리 파라미터로 사용하여 캐시 파쇄
+        const bustParam = isForce ? `t=${new Date().getTime()}` : `v=${version}`;
+        ns.tprint(`[${host}] Found ${total} files (Version: ${version}). Starting synchronization...`);
 
         for (let i = 0; i < total; i++) {
             const fileName = files[i];
@@ -55,7 +58,7 @@ export async function main(ns) {
             
             ns.tprint(`[${host}] [${bar}] ${percent}% | ${i + 1}/${total} | Syncing: ${fileName}`);
             
-            const fileUrl = `${baseUrl}${fileName}?t=${timestamp}`;
+            const fileUrl = `${baseUrl}${fileName}?${bustParam}`;
             const success = await ns.wget(fileUrl, fileName);
             if (!success) {
                 ns.tprint(`[${host}]   ❌ Failed: ${fileName}`);

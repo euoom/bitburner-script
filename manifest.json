@@ -1,5 +1,4 @@
 {
-    "version": "1.1.20",
     "files": [
         "pull.js",
         "euoom/analyze/crawler.js",

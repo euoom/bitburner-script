@@ -1,35 +1,34 @@
 /** @param {NS} ns */
 export async function main(ns) {
-    // 1. 할당량을 2.20GB로 잡습니다. (기본 1.6 + scp 0.6)
-    // 만약 누적제라면, scp 실행 후 다른 함수를 부르는 순간 2.20을 초과하여 죽을 것입니다.
-    ns.ramOverride(2.2);
+    // 1. 모든 함수를 숨겨서 순수 1.6GB 베이스를 만듭니다.
+    const overrideFn = "ramOverride";
+    const sleepFn = "sleep";
+    const tprintFn = "tprint";
     
-    ns.tprint("=== RAM Accumulation Test (Target: 2.20GB) ===");
+    ns[overrideFn](2.5); // 임계값 2.5GB 설정
+    
+    ns[tprintFn]("=== RAM Accumulation Precise Test (Target: 2.50GB) ===");
 
     try {
-        // Step 1: scp 호출 (0.6GB 소모)
-        // 현재 상태: 1.6 + 0.6 = 2.2GB (세이프)
-        ns.tprint("[Step 1] Calling scp (0.6GB)...");
-        ns["scp"]("pull.js", "home", "temp_cum_1.js");
-        ns.tprint(" -> Step 1 Success!");
+        // Step 1: scp (0.6) -> 계: 2.2
+        ns[tprintFn]("[Step 1] Calling scp (0.6GB)...");
+        const res1 = ns["scp"]("pull.js", "home", "temp_cum_test.js");
+        ns[tprintFn](` -> Step 1 Success! (Return: ${res1})`);
 
-        // Step 2: scan 호출 (0.2GB 소모)
-        // 누적제일 경우: 2.2 + 0.2 = 2.4GB (사망 예상)
-        // 최대치제일 경우: Max(0.6, 0.2) = 0.6이므로 2.2GB (생존 예상)
-        ns.tprint("[Step 2] Calling scan (0.2GB)...");
-        const neighbors = ns["scan"]("home");
-        ns.tprint(` -> Step 2 Success! Neighbors: ${neighbors.length}`);
+        // Step 2: scan (0.2) -> 계: 2.4 (누적제라면 아슬아슬하게 생존)
+        ns[tprintFn]("[Step 2] Calling scan (0.2GB)...");
+        const res2 = ns["scan"]("home");
+        ns[tprintFn](` -> Step 2 Success! (Neighbors: ${res2.length})`);
 
-        // Step 3: ls 호출 (0.2GB 소모)
-        // 누적제일 경우: 2.4 + 0.2 = 2.6GB (확실한 사망)
-        ns.tprint("[Step 3] Calling ls (0.2GB)...");
-        ns["ls"]("home");
-        ns.tprint(" -> Step 3 Success!");
+        // Step 3: ls (0.2) -> 계: 2.6 (누적제라면 여기서 반드시 사망)
+        ns[tprintFn]("[Step 3] Calling ls (0.2GB)...");
+        const res3 = ns["ls"]("home");
+        ns[tprintFn](` -> Step 3 Success! (Files: ${res3.length})`);
 
-        ns.tprint("=== RESULT: RAM is NOT cumulative! (Max Peak System) ===");
+        ns[tprintFn]("=== [FINAL RESULT] RAM is NOT cumulative! Max Peak used. ===");
     } catch (e) {
-        ns.tprint(`=== RESULT: RAM is CUMULATIVE! Death at: ${e.message} ===`);
+        ns[tprintFn](`=== [FINAL RESULT] RAM is CUMULATIVE! Error: ${JSON.stringify(e)} ===`);
     }
 
-    while (true) await ns.sleep(1000);
+    while (true) await ns[sleepFn](1000);
 }

@@ -26,14 +26,15 @@ export async function main(ns) {
 
     try {
         ns.tprint(`[${host}] Fetching manifest.json...`);
-        const manifestResult = await ns.wget(manifestUrl, "temp_manifest.json");
+        ns.tprint(`[${host}] URL: ${manifestUrl}`); // 디버깅용 URL 출력
+        const manifestResult = await ns.wget(manifestUrl, "/temp_manifest.json");
 
         if (!manifestResult) {
-            ns.tprint(`[${host}] ❌ Error: Manifest download failed. (URL: ${manifestUrl})`);
+            ns.tprint(`[${host}] ❌ Error: Manifest download failed.`);
             return;
         }
 
-        const content = ns.read("temp_manifest.json");
+        const content = ns.read("/temp_manifest.json");
         const manifestContent = JSON.parse(content);
         const files = manifestContent.files || [];
         const total = files.length;
@@ -62,7 +63,7 @@ export async function main(ns) {
             }
         }
 
-        ns.rm("temp_manifest.json");
+        ns.rm("/temp_manifest.json");
         ns.tprint(`[${host}] ✨ Pull complete! ${total} scripts are up to date.`);
 
     } catch (error) {

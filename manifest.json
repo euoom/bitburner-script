@@ -13,6 +13,7 @@
         "euoom/test/ram_experimental.js",
         "euoom/test/ram_fat.js",
         "euoom/test/ram_function.js",
+        "euoom/test/ram_proto.js",
         "euoom/test/ram_slim.js",
         "euoom/test/ram_variable.js",
         "euoom/util/backup.js",

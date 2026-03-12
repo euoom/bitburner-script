@@ -1,22 +1,22 @@
 /** @param {NS} ns */
 export async function main(ns) {
-    // 타겟: scp (0.60GB - 덩치가 커서 구분이 확실함)
-    const fake = {
-        scp: function() { return false; }
-    };
-
-    ns.tprint("=== Heavy Function Pattern Test (scp: 0.6GB) ===");
+    // 1. 램 할당량을 무조건 1.6GB로 고정합니다. (입장료만 내기)
+    ns.ramOverride(1.6);
     
-    // 가짜 scp 호출. 가설이 맞다면 0.6GB가 추가로 청구됨.
-    const res = fake.scp();
+    ns.tprint("=== Real Function Bypass Test (scp: 0.6GB) ===");
     
-    // 측정도 트릭으로 수행 (측정 함수 자체의 0.1GB 청구를 피함)
-    const getRamFn = "getScriptRam";
-    const actualRam = ns[getRamFn](ns.getScriptName());
-    
-    ns.tprint(`Fake scp Call Result: ${res}`);
-    ns.tprint(`[SYSTEM] Current Script RAM Cost: ${actualRam.toFixed(2)} GB`);
-    ns.tprint(`(Expected 1.60 if logic-based, 2.20 if pattern-based)`);
+    try {
+        // 2. 평소라면 0.6GB를 먹는 scp를 대괄호 트릭으로 부릅니다.
+        // 만약 대괄호 방식이 실제 실행 중에도 램을 청구한다면, 
+        // 1.6 + 0.6 = 2.2GB가 되어 할당량(1.6)을 초과하므로 스크립트는 즉시 죽습니다.
+        const res = ns["scp"]("pull.js", "home", "home"); // 자가 복사 시도
+        
+        ns.tprint(`Real scp Call Result: ${res}`);
+        ns.tprint(`STATUS: SUCCESS! Bracket notation is REAL 0GB at runtime.`);
+    } catch (e) {
+        ns.tprint(`STATUS: FAILED! Bracket notation still costs RAM at runtime.`);
+        ns.tprint(`Error Message: ${e.message}`);
+    }
     
     while (true) {
         await ns.sleep(1000);

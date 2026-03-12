@@ -23,21 +23,35 @@ export async function main(ns) {
 
     const statsFile = "/scripts/hacknet/stats.json";
     let totalInvested = 0;
+    let history = [];
 
     // 저장된 데이터 불러오기
     if (ns.fileExists(statsFile)) {
         try {
             const savedData = JSON.parse(ns.read(statsFile));
             totalInvested = savedData.totalInvested || 0;
+            history = savedData.history || [];
         } catch (e) {
             ns.print("⚠️ Failed to read stats.json, initializing...");
         }
     }
 
     /** 데이터 저장 함수 */
-    function saveStats() {
-        const data = { totalInvested: totalInvested };
-        ns.write(statsFile, JSON.stringify(data), "w");
+    function saveStats(newRecord) {
+        if (newRecord) {
+            history.push({
+                time: new Date().toLocaleString(),
+                ...newRecord
+            });
+            // 파일 크기가 너무 커지지 않도록 최근 100개만 유지 (필요시 조절)
+            if (history.length > 100) history.shift();
+        }
+        
+        const data = { 
+            totalInvested: totalInvested,
+            history: history
+        };
+        ns.write(statsFile, JSON.stringify(data, null, 2), "w");
     }
 
     while (true) {
@@ -122,7 +136,11 @@ export async function main(ns) {
                         
                         if (success) {
                             totalInvested += bestOption.cost;
-                            saveStats();
+                            saveStats({
+                                type: bestOption.type,
+                                target: bestOption.text,
+                                cost: bestOption.cost
+                            });
                         }
                     } else {
                         ns.print(`ℹ️ [DEBUG] Afforded! Purchase skipped.`);

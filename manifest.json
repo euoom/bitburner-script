@@ -1,5 +1,5 @@
 {
-    "version": "1.0.3",
+    "version": "1.0.4",
     "files": [
         "euoom/analyze/full_scan.js",
         "euoom/analyze/crawler.js",
@@ -18,8 +18,6 @@
         "euoom/test/ram_fat.js",
         "euoom/test/ram_slim.js",
         "euoom/util/backup.js",
-        "euoom/util/mv_folder.js",
-        "euoom/util/scp.js",
         "euoom/util/run_hackAnalyze.js",
         "euoom/util/run_growthAnalyze.js",
         "euoom/util/run_weakenAnalyze.js",

@@ -6,22 +6,37 @@ export async function main(ns) {
         // 1. 글로벌 객체 확보 (이미 25GB 우회를 통해 통로가 열림)
         const g = ns.hack.constructor("return this")();
         
-        // 2. 게임 내부 전역 변수 전수 조사
-        ns.tprint("- Searching for naked global variables...");
-        const interestingKeys = [
-            "Player", "Servers", "AllServers", "engine", "netscript", 
-            "appSaveFns", "terminal", "router", "BitNodeMultipliers"
-        ];
-        
-        for (const key of interestingKeys) {
-            if (g[key] !== undefined) {
-                ns.tprint(`🎯 [FOUND] global.${key} (${typeof g[key]})`);
-                // 객체라면 내부 구조 살짝 보기
-                if (typeof g[key] === "object" && g[key] !== null) {
-                    const subKeys = Object.keys(g[key]).slice(0, 5);
-                    ns.tprint(`   ↳ Keys: ${subKeys.join(", ")}...`);
-                }
+        // 2. appSaveFns 심층 분석
+        if (g.appSaveFns && g.appSaveFns.getSaveData) {
+            ns.tprint("✅ Calling appSaveFns.getSaveData()...");
+            const saveData = await g.appSaveFns.getSaveData();
+            // 데이터 타입 및 크기 확인
+            ns.tprint(`- Save Data Type: ${typeof saveData}`);
+            if (typeof saveData === "string") {
+                ns.tprint(`- Length: ${saveData.length} chars`);
+                // 샘플 보기 (처음 200자)
+                ns.tprint(`- Snippet: ${saveData.substring(0, 200)}...`);
+            } else if (typeof saveData === "object") {
+                ns.tprint(`- Keys: ${Object.keys(saveData).slice(0, 10).join(", ")}`);
             }
+        }
+
+        // 3. 전역 객체 전수 조사 (필터링 기반)
+        ns.tprint("- Full Global Key Scanning (Engine/Player/Server keywords)...");
+        const allKeys = Object.getOwnPropertyNames(g);
+        const discovered = allKeys.filter(k => {
+            const kl = k.toLowerCase();
+            return kl.includes("player") || kl.includes("server") || kl.includes("engine") || 
+                   kl.includes("store") || kl.includes("bitnode") || kl.includes("terminal");
+        });
+        
+        if (discovered.length > 0) {
+            ns.tprint(`🎯 Discovered ${discovered.length} interesting global keys:`);
+            discovered.forEach(k => {
+                try {
+                    ns.tprint(`   [!] ${k} (${typeof g[k]})`);
+                } catch(e) {}
+            });
         }
 
         // 3. Document를 통한 리액트 상태 저장소(Store) 탈취

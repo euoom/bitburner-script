@@ -1,8 +1,8 @@
 /** @param {NS} ns */
 export async function main(ns) {
-    // 램 측정도 트릭으로 수행하여 기본 1.6GB를 유지합니다.
+    // getScriptRam은 0.1GB를 소모합니다. 정공법으로 써서 할당량을 1.7GB로 만듭니다.
     const scriptName = ns.getScriptName();
-    const actualRam = ns["getScriptRam"](scriptName);
+    const actualRam = ns.getScriptRam(scriptName);
     
     ns.tprint(`=== Slim Hacknet Version ===`);
     ns.tprint(`[Actual RAM Cost]: ${actualRam.toFixed(2)} GB`);

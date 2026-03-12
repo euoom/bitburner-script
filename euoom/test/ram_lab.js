@@ -77,11 +77,16 @@ export async function main(ns) {
         { name: "Nuke", path: "/euoom/test/functions/dynamic_nuke.js", staticRam: 0.05 },
         { name: "BruteSSH", path: "/euoom/test/functions/dynamic_brutessh.js", staticRam: 0.05 },
 
-        // --- [Level 3: Hyper Cost & Subs (4.0GB ~ 5.0GB+)] ---
-        { name: "Singularity", path: "/euoom/test/functions/dynamic_singularity.js", staticRam: 4.0 },
+        // --- [Level 3: Hyper Cost & Subs (4.0GB ~ 512GB+)] ---
+        { name: "Singularity (High)", path: "/euoom/test/functions/dynamic_singularity_high.js", staticRam: 512.0 },
+        { name: "Singularity (Mid)", path: "/euoom/test/functions/dynamic_singularity_mid.js", staticRam: 48.0 },
         { name: "Formulas", path: "/euoom/test/functions/dynamic_formulas.js", staticRam: 5.0 },
-        { name: "Corporation", path: "/euoom/test/functions/dynamic_corporation.js", staticRam: Infinity },
-        { name: "Stock Market", path: "/euoom/test/functions/dynamic_stock.js", staticRam: 2.0 }
+        { name: "Corporation", path: "/euoom/test/functions/dynamic_corporation.js", staticRam: 20.0 },
+        { name: "Bladeburner", path: "/euoom/test/functions/dynamic_bladeburner.js", staticRam: 4.0 },
+        { name: "Gang", path: "/euoom/test/functions/dynamic_gang.js", staticRam: 4.0 },
+        { name: "Sleeve", path: "/euoom/test/functions/dynamic_sleeve.js", staticRam: 4.0 },
+        { name: "Stanek", path: "/euoom/test/functions/dynamic_stanek.js", staticRam: 5.0 },
+        { name: "Stock Market", path: "/euoom/test/functions/dynamic_stock.js", staticRam: 2.5 }
     ];
 
     ns.tprint("=== RAM LAB: Runtime Stress Test (Force 1.6GB) ===");

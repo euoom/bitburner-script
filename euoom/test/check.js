@@ -26,27 +26,56 @@ export async function main(ns) {
                 ns.tprint(`✅ Found React Key: ${reactKey}`);
                 const internal = root[reactKey];
                 
-                ns.tprint("- Inspecting React internals for Engine/Player hooks...");
+                ns.tprint("- Searching deeper (50 layers) and across all DOM elements...");
                 
                 let foundEngine = null;
-                function findInReact(obj, depth = 0) {
-                    if (!obj || depth > 10 || foundEngine) return;
+                const seen = new Set();
+
+                function findInFiber(obj, depth = 0) {
+                    if (!obj || depth > 50 || foundEngine || seen.has(obj)) return;
+                    seen.add(obj);
                     
-                    if (obj.stateNode && obj.stateNode.props && obj.stateNode.props.ns) {
-                        foundEngine = obj.stateNode.props.ns;
-                        return;
+                    // 핵심 탐색 대상: ns, player, engine, router
+                    const targets = ["ns", "player", "engine"];
+                    
+                    // 1. memoizedProps 탐색
+                    if (obj.memoizedProps) {
+                        for (const target of targets) {
+                            if (obj.memoizedProps[target]) {
+                                foundEngine = obj.memoizedProps[target];
+                                if (target === "ns") return; // ns를 찾으면 즉시 중단
+                            }
+                        }
                     }
 
-                    if (obj.memoizedProps && obj.memoizedProps.ns) {
-                        foundEngine = obj.memoizedProps.ns;
-                        return;
+                    // 2. stateNode 탐색
+                    if (obj.stateNode && !obj.stateNode.nodeType) { // DOM 노드가 아닌 경우만
+                        for (const target of targets) {
+                            if (obj.stateNode.props && obj.stateNode.props[target]) {
+                                foundEngine = obj.stateNode.props[target];
+                                if (target === "ns") return;
+                            }
+                        }
                     }
 
-                    if (obj.child) findInReact(obj.child, depth + 1);
-                    if (obj.sibling) findInReact(obj.sibling, depth + 1);
+                    if (obj.child) findInFiber(obj.child, depth + 1);
+                    if (obj.sibling) findInFiber(obj.sibling, depth + 1);
                 }
 
-                findInReact(internal);
+                // 1) Root Container부터 탐색
+                findInFiber(internal);
+
+                // 2) 만약 못 찾았다면 모든 DOM 엘리먼트를 돌며 Fiber 노드 탐색
+                if (!foundEngine) {
+                    const allElems = doc.getElementsByTagName("*");
+                    for (const el of allElems) {
+                        const fiberKey = Object.keys(el).find(k => k.startsWith("__reactFiber"));
+                        if (fiberKey) {
+                            findInFiber(el[fiberKey]);
+                            if (foundEngine) break;
+                        }
+                    }
+                }
 
                 if (foundEngine) {
                     ns.tprint("🎯 JACKPOT: Naked Engine acquired!");

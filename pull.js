@@ -7,6 +7,7 @@ export async function main(ns) {
     // 인자 분석
     const args = ns.args;
     const isForce = args.includes("--force") || args.includes("-f");
+    const skipManifest = args.includes("--skip-manifest") || args.includes("-s");
     
     // 위치 기반 인자 추출 (플래그 제외)
     const cleanArgs = args.filter(a => !a.startsWith("-"));
@@ -14,7 +15,7 @@ export async function main(ns) {
     const repo = cleanArgs[1] || defaultRepo;
     const branch = cleanArgs[2] || defaultBranch;
 
-    const timestamp = isForce ? new Date().getTime() : Math.floor(new Date().getTime() / 60000); // force면 ms 단위, 아니면 분 단위 캐시
+    const timestamp = isForce ? new Date().getTime() : Math.floor(new Date().getTime() / 60000); 
     const baseUrl = `https://raw.githubusercontent.com/${user}/${repo}/${branch}/`;
     const manifestUrl = `${baseUrl}manifest.json?t=${timestamp}`;
 
@@ -22,16 +23,24 @@ export async function main(ns) {
 
     ns.tprint(`[${host}] 🚀 Starting Bitburner Pull System...`);
     if (isForce) ns.tprint(`[${host}] ⚠️ Force mode enabled: Bypassing cache.`);
+    if (skipManifest) ns.tprint(`[${host}] 📂 Skip manifest update: Using local manifest.json.`);
     ns.tprint(`[${host}] Source: ${user}/${repo} (${branch})`);
 
     try {
-        ns.tprint(`[${host}] Fetching manifest.json...`);
-        ns.tprint(`[${host}] URL: ${manifestUrl}`); // 디버깅용 URL 출력
-        const manifestResult = await ns.wget(manifestUrl, "/manifest.json");
+        if (!skipManifest) {
+            ns.tprint(`[${host}] Fetching manifest.json...`);
+            ns.tprint(`[${host}] URL: ${manifestUrl}`);
+            const manifestResult = await ns.wget(manifestUrl, "/manifest.json");
 
-        if (!manifestResult) {
-            ns.tprint(`[${host}] ❌ Error: Manifest download failed.`);
-            return;
+            if (!manifestResult) {
+                ns.tprint(`[${host}] ❌ Error: Manifest download failed.`);
+                return;
+            }
+        } else {
+            if (!ns.fileExists("/manifest.json")) {
+                ns.tprint(`[${host}] ❌ Error: Local /manifest.json not found. Run without -s once.`);
+                return;
+            }
         }
 
         const content = ns.read("/manifest.json");

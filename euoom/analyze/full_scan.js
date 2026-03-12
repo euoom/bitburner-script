@@ -36,6 +36,7 @@ export async function main(ns) {
 
                 const hPercent = ns.hackAnalyze(current);
                 const hAmount = currentMoney * hPercent;
+                const hPotAmount = maxMoney * hPercent;
                 const wAmount = ns.weakenAnalyze(1);
                 const gThreadsToMax = ns.growthAnalyze(current, growthRatio);
 
@@ -49,23 +50,26 @@ export async function main(ns) {
                     maxMoney: maxMoney,
                     currentMoney: currentMoney,
                     requiredHacking: ns.getServerRequiredHackingLevel(current),
-                    hackTime: hTimeSec * 1000,
+                    hackTime: hTimeSec, // sec
                     hackPercent: hPercent, 
                     hackAmount: hAmount,
                     hackSpeed: hAmount / hTimeSec,
+                    potHackSpeed: hPotAmount / hTimeSec, // Max-money $/sec
+                    hackSecSpeed: 0.002 / hTimeSec, // security increase / sec
                     
                     // [Growth]
                     growth: ns.getServerGrowth(current),
-                    growTime: gTimeSec * 1000,
+                    growTime: gTimeSec, // sec
                     growthThreadsToMax: gThreadsToMax,
                     growSpeed: (maxMoney - currentMoney) / (Math.max(gThreadsToMax, 1) * gTimeSec),
+                    growSecSpeed: 0.004 / gTimeSec, // security increase / sec
                     
                     // [Security]
                     minSecurity: ns.getServerMinSecurityLevel(current),
                     baseSecurity: ns.getServerBaseSecurityLevel(current),
-                    weakenTime: wTimeSec * 1000,
+                    weakenTime: wTimeSec, // sec
                     weakenAmount: wAmount,
-                    weakenSpeed: wAmount / wTimeSec
+                    weakenSpeed: wAmount / wTimeSec // security reduction / sec
                 };
             } catch (e) {
                 ns.tprint(`[Warning] Failed to scan stats for ${current}: ${e}`);
@@ -74,7 +78,7 @@ export async function main(ns) {
     }
 
     // 3. 수집된 데이터를 JSON 형식으로 저장
-    const resultPath = "/euoom/server/network_db.json";
+    const resultPath = "/euoom/analyze/db.json";
     const jsonData = JSON.stringify(networkDB, null, 4);
     
     ns.write(resultPath, jsonData, "w");

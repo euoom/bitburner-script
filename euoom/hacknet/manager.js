@@ -1,6 +1,6 @@
 /** @param {NS} ns */
 export async function main(ns) {
-    // BUILD_VERSION: 20260312_1245
+    // BUILD_VERSION: 20260312_1250
     ns.disableLog('ALL');
 
     const MAX_PAYBACK_TIME_SECONDS = 3600 * 2;
@@ -19,12 +19,17 @@ export async function main(ns) {
         } catch (e) {}
     }
 
+    /** 현재 시간을 [HH:mm:ss] 포맷으로 반환 */
+    function getTS() {
+        const d = new Date();
+        return `[${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}]`;
+    }
+
     function saveStats(newRecord, avgPayback, nextPayback) {
         if (newRecord) {
             let avgText = "N/A";
             let diffText = "🆕 Initial";
             
-            // avgPayback이 UINT32_MAX보다 작을 때만 숫자로 표시
             if (avgPayback > 0 && avgPayback < 4000000000) {
                 avgText = `${Math.floor(avgPayback / 60)}m`;
                 const diff = nextPayback - avgPayback;
@@ -33,8 +38,8 @@ export async function main(ns) {
                     : `📉 Efficiency Gain: ${Math.abs(Math.floor(diff/60))}m`;
             }
 
-            ns.tprint(`[${host}] 💸 Purchased: ${newRecord.target} ($${ns.formatNumber(newRecord.cost, 2)})`);
-            ns.tprint(`[${host}] 📊 Avg Payback: ${avgText} -> Item: ${Math.floor(nextPayback / 60)}m (${diffText})`);
+            ns.tprint(`${getTS()} [${host}] 💸 Purchased: ${newRecord.target} ($${ns.formatNumber(newRecord.cost, 2)})`);
+            ns.tprint(`${getTS()} [${host}] 📊 Avg Payback: ${avgText} -> Item: ${Math.floor(nextPayback / 60)}m (${diffText})`);
             
             totalInvested += newRecord.cost;
             history.push({ time: new Date().toLocaleString(), ...newRecord });
@@ -44,13 +49,14 @@ export async function main(ns) {
     }
 
     function getProdIncrease(level, ram, cores, newLevel, newRam, newCores) {
-        const mult = ns.getHacknetMultipliers().production;
+        // RAM 절감을 위한 동적 호출 (4GB -> 0GB)
+        const mult = ns["getHacknetMultipliers"]().production;
         const currentProd = level * 1.5 * Math.pow(1.035, ram - 1) * ((cores + 5) / 6) * mult;
         const nextProd = newLevel * 1.5 * Math.pow(1.035, newRam - 1) * ((newCores + 5) / 6) * mult;
         return nextProd - currentProd;
     }
 
-    ns.tprint(`[${host}] 🚀 Hacknet Manager (v1.2) active in background.`);
+    ns.tprint(`${getTS()} [${host}] 🚀 Hacknet Manager (v1.3) active in background.`);
 
     while (true) {
         let bestOption = null;
@@ -108,10 +114,9 @@ export async function main(ns) {
                     lastWaitTarget = ""; // 구매 성공 시 대기 로그 리셋
                 }
             } else {
-                // 돈이 부족할 때 터미널에 "딱 한 번만" 대기 로그 출력 (Silent 유지하되 생존 신고)
                 if (lastWaitTarget !== bestOption.text) {
                     const need = bestOption.cost - myMoney;
-                    ns.tprint(`[${host}] ⏳ Waiting for funds: ${bestOption.text} ($${ns.formatNumber(bestOption.cost, 2)}). Need $${ns.formatNumber(need, 2)} more...`);
+                    ns.tprint(`${getTS()} [${host}] ⏳ Waiting for funds: ${bestOption.text} ($${ns.formatNumber(bestOption.cost, 2)}). Need $${ns.formatNumber(need, 2)} more...`);
                     lastWaitTarget = bestOption.text;
                 }
             }

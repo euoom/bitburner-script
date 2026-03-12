@@ -1,5 +1,5 @@
 {
-    "version": "1.1.3",
+    "version": "1.1.4",
     "files": [
         "euoom/analyze/full_scan.js",
         "euoom/analyze/crawler.js",
@@ -43,6 +43,16 @@
         "euoom/test/functions/dynamic_getHackTime.js",
         "euoom/test/functions/dynamic_getGrowTime.js",
         "euoom/test/functions/dynamic_getWeakenTime.js",
+        "euoom/test/functions/dynamic_deleteServer.js",
+        "euoom/test/functions/dynamic_exec.js",
+        "euoom/test/functions/dynamic_ftpcrack.js",
+        "euoom/test/functions/dynamic_getBitNodeMultipliers.js",
+        "euoom/test/functions/dynamic_getFavorToDonate.js",
+        "euoom/test/functions/dynamic_getHackingLevel.js",
+        "euoom/test/functions/dynamic_getHackingMultipliers.js",
+        "euoom/test/functions/dynamic_getHacknetMultipliers.js",
+        "euoom/test/functions/dynamic_getHostname.js",
+        "euoom/test/functions/dynamic_getMoneySources.js",
         "euoom/util/backup.js",
         "euoom/util/run_hackAnalyze.js",
         "euoom/util/run_growthAnalyze.js",

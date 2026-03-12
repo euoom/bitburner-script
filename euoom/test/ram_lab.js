@@ -20,6 +20,16 @@ export async function main(ns) {
         
         { name: "Scan", path: "/euoom/test/functions/dynamic_scan.js", staticRam: 0.2 },
         { name: "File Exists", path: "/euoom/test/functions/dynamic_fileExists.js", staticRam: 0.1 },
+        { name: "Delete Srv", path: "/euoom/test/functions/dynamic_deleteServer.js", staticRam: 0.05 },
+        { name: "Exec", path: "/euoom/test/functions/dynamic_exec.js", staticRam: 1.3 },
+        { name: "FTP Crack", path: "/euoom/test/functions/dynamic_ftpcrack.js", staticRam: 0.05 },
+        { name: "BitNode Mult", path: "/euoom/test/functions/dynamic_getBitNodeMultipliers.js", staticRam: 0.1 },
+        { name: "Favor Donate", path: "/euoom/test/functions/dynamic_getFavorToDonate.js", staticRam: 0.1 },
+        { name: "Hack Lvl", path: "/euoom/test/functions/dynamic_getHackingLevel.js", staticRam: 0.05 },
+        { name: "Hack Mult", path: "/euoom/test/functions/dynamic_getHackingMultipliers.js", staticRam: 0.1 },
+        { name: "HN Mult", path: "/euoom/test/functions/dynamic_getHacknetMultipliers.js", staticRam: 0.1 },
+        { name: "Hostname", path: "/euoom/test/functions/dynamic_getHostname.js", staticRam: 0.05 },
+        { name: "Money Src", path: "/euoom/test/functions/dynamic_getMoneySources.js", staticRam: 0.1 },
 
         // --- [Level 2: Heavy Server & Player (2.0GB ~ 4.0GB)] ---
         { name: "Get Server", path: "/euoom/test/functions/dynamic_getServer.js", staticRam: 2.0 },

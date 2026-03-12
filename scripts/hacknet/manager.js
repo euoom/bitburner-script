@@ -5,7 +5,9 @@ export async function main(ns) {
 
     /** 수입 증가량 계산 함수 (Hacknet 수입 공식 기반) */
     function getProdIncrease(level, ram, cores, newLevel, newRam, newCores) {
-        const mult = ns.getHacknetMultipliers().production;
+        // RAM 절약을 위해 배수(mult)를 1.0으로 고정합니다. (4GB 절전 효과)
+        // 상대적인 ROI 순위는 배수와 상관없이 동일하게 유지됩니다.
+        const mult = 1.0; 
         const currentProd = level * 1.5 * Math.pow(1.035, ram - 1) * ((cores + 5) / 6) * mult;
         const nextProd = newLevel * 1.5 * Math.pow(1.035, newRam - 1) * ((newCores + 5) / 6) * mult;
         return nextProd - currentProd;
